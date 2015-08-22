@@ -17,7 +17,9 @@ import com.leroy.ronan.wow.avatar.AvatarGenerator;
 @WebServlet("/avatar/*")
 public class AvatarServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+     
+	private static AvatarGenerator generator = new AvatarGenerator();
+	
     public AvatarServlet() {
         super();
     }
@@ -25,7 +27,6 @@ public class AvatarServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String uri = request.getRequestURI();
 		String[] params = uri.replace(".png", "").split("/");
-		AvatarGenerator generator = new AvatarGenerator();
 		try {
 			BufferedImage img = generator.buildImage(params[2], params[3], params[4]);
 			OutputStream out = response.getOutputStream();

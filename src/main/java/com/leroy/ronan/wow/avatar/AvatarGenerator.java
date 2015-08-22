@@ -7,8 +7,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
@@ -31,24 +33,33 @@ import org.apache.log4j.Logger;
 
 import com.codesnippets4all.json.parsers.JSONParser;
 import com.codesnippets4all.json.parsers.JsonParserFactory;
+import com.google.code.joliratools.cache.ExpiringCache;
 import com.leroy.ronan.utils.img.ImageCombinator;
 
 public class AvatarGenerator {
 
 	private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
 
+	private Map<String, BufferedImage> cache = new ExpiringCache<>(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES));
+	
 	public BufferedImage buildImage(String region, String realm, String...characters) throws ClientProtocolException, IOException, URISyntaxException {
-		BufferedImage res;
-		if (characters.length <= 5){
-            URL url = getImgUrl(region, realm, characters);
-            res = ImageIO.read(url);
-        } else {
-        	res = ImageCombinator.combineLeftToRight(
-    				buildImage(region, realm, Arrays.copyOfRange(characters, 0, 4)),
-    				buildImage(region, realm, Arrays.copyOfRange(characters, 4, characters.length))
-    			);
-        }
+		BufferedImage res = cache.get(buildKey(region, realm, characters));
+		if (res == null) {
+			if (characters.length <= 5){
+	            URL url = getImgUrl(region, realm, characters);
+	            res = ImageIO.read(url);
+	        } else {
+	        	res = ImageCombinator.combineLeftToRight(
+	    				buildImage(region, realm, Arrays.copyOfRange(characters, 0, 4)),
+	    				buildImage(region, realm, Arrays.copyOfRange(characters, 4, characters.length))
+	    			);
+	        }
+		}
         return res;
+	}
+	
+	private String buildKey(String region, String realm, String...characters){
+		return region+","+realm+","+StringUtils.join(characters, ",");
 	}
 
 	private URL getImgUrl(String region, String realm, String... characters)
