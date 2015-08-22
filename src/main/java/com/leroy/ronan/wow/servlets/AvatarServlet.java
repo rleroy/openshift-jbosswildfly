@@ -33,7 +33,7 @@ public class AvatarServlet extends HttpServlet {
 		String uri = request.getRequestURI();
 		String[] params = uri.replace(".png", "").split("/");
 		try {
-			BufferedImage img = generator.buildImage(params[2], params[3], params[4]);
+			BufferedImage img = generator.buildImage(params[2], params[3], params[4].split("-"));
 			OutputStream out = response.getOutputStream();
 			ImageIO.write(img, "png", out);
 			out.close();

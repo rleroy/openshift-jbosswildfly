@@ -61,7 +61,7 @@ public class AvatarGenerator {
 	}
 	
 	private String buildKey(String region, String realm, String...characters){
-		return region+","+realm+","+StringUtils.join(characters, ",");
+		return region+","+realm+","+StringUtils.join(characters, "-");
 	}
 
 	private URL getImgUrl(String region, String realm, String... characters)
