@@ -1,8 +1,11 @@
 package com.leroy.ronan.wow.servlets;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,17 +23,17 @@ public class AvatarServlet extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String content = request.getRequestURI() + "\n";
-		
+		String uri = request.getRequestURI();
+		String[] params = uri.replace(".png", "").split("/");
 		AvatarGenerator generator = new AvatarGenerator();
 		try {
-			generator.buildImage("eu", "Sargeras", "Pamynx");
-			content += "Success !";
+			BufferedImage img = generator.buildImage(params[1], params[2], params[3]);
+			OutputStream out = response.getOutputStream();
+			ImageIO.write(img, "png", out);
+			out.close();
 		} catch (URISyntaxException e) {
-			content += "Failure : " + e.getMessage();
+			log(e.getMessage(), e);
 		}
-		
-		response.getWriter().append(content);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
