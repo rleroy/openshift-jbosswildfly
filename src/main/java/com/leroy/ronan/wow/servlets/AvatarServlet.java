@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -26,10 +27,12 @@ public class AvatarServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		response.setHeader("Cache-Control", "no-cache");
-	    response.setHeader("Pragma", "no-cache");
-	    response.setDateHeader("Expires", 0);
-		
+		long now = System.currentTimeMillis();
+		response.addHeader("Cache-Control", "max-age=" + TimeUnit.SECONDS.convert(1, TimeUnit.HOURS));
+		response.addHeader("Cache-Control", "must-revalidate");
+		response.setDateHeader("Last-Modified", now);
+		response.setDateHeader("Expires", now + TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS));
+
 		String uri = request.getRequestURI();
 		String[] params = uri.replace(".png", "").split("/");
 		try {
