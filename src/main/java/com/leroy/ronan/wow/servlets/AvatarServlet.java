@@ -27,7 +27,7 @@ public class AvatarServlet extends HttpServlet {
 		String[] params = uri.replace(".png", "").split("/");
 		AvatarGenerator generator = new AvatarGenerator();
 		try {
-			BufferedImage img = generator.buildImage(params[1], params[2], params[3]);
+			BufferedImage img = generator.buildImage(params[2], params[3], params[4]);
 			OutputStream out = response.getOutputStream();
 			ImageIO.write(img, "png", out);
 			out.close();
