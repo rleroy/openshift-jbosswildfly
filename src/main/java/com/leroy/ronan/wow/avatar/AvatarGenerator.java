@@ -104,6 +104,7 @@ public class AvatarGenerator {
 		    HttpEntity entity = response1.getEntity();
 
 		    res = EntityUtils.toString(entity);
+		    log.debug("Content:"+res);
 		    EntityUtils.consume(entity);
 
 		    log.debug("Cookies:");
