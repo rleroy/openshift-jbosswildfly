@@ -53,6 +53,8 @@ public class AvatarGenerator {
 
 	private URL getImgUrl(String region, String realm, String... characters)
 			throws IOException, ClientProtocolException, URISyntaxException, MalformedURLException {
+		log.debug("getImgUrl("+region+","+realm+","+StringUtils.join(characters, ",")+")");
+		
 		URL url;
         BasicCookieStore cookieStore = new BasicCookieStore();
         CloseableHttpClient httpclient = HttpClients.custom()
@@ -104,7 +106,6 @@ public class AvatarGenerator {
 		    HttpEntity entity = response1.getEntity();
 
 		    res = EntityUtils.toString(entity);
-		    log.debug("Content:"+res);
 		    EntityUtils.consume(entity);
 
 		    log.debug("Cookies:");
