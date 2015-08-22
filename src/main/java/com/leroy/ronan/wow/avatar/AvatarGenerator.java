@@ -43,7 +43,8 @@ public class AvatarGenerator {
 	private Map<String, BufferedImage> cache = new ExpiringCache<>(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES));
 	
 	public BufferedImage buildImage(String region, String realm, String...characters) throws ClientProtocolException, IOException, URISyntaxException {
-		BufferedImage res = cache.get(buildKey(region, realm, characters));
+		String key = buildKey(region, realm, characters);
+		BufferedImage res = cache.get(key);
 		if (res == null) {
 			if (characters.length <= 5){
 	            URL url = getImgUrl(region, realm, characters);
@@ -54,6 +55,7 @@ public class AvatarGenerator {
 	    				buildImage(region, realm, Arrays.copyOfRange(characters, 4, characters.length))
 	    			);
 	        }
+			cache.put(key, res);
 		}
         return res;
 	}
