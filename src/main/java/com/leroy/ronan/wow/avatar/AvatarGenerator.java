@@ -7,7 +7,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,9 +29,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
-import com.codesnippets4all.json.parsers.JSONParser;
-import com.codesnippets4all.json.parsers.JsonParserFactory;
 import com.google.code.joliratools.cache.ExpiringCache;
 import com.leroy.ronan.utils.img.ImageCombinator;
 
@@ -102,7 +101,10 @@ public class AvatarGenerator {
 	        		new BasicNameValuePair("save", "1")
 	        		);
 		
-	        String link = StringEscapeUtils.unescapeEcmaScript(getJSonValue(json, "link"));
+	        JSONObject obj = (JSONObject)JSONValue.parse(json);
+
+	        
+	        String link = StringEscapeUtils.unescapeEcmaScript((String)obj.get("link"));
 	        log.debug("link:"+link);
 	        url = new URL(link);
 		} finally {
@@ -163,14 +165,4 @@ public class AvatarGenerator {
         }
 		return res;
 	}
-
-	private String getJSonValue(String json, String value) {
-		JsonParserFactory factory = JsonParserFactory.getInstance();
-		JSONParser parser = factory.newJsonParser();
-		Map jsonData = parser.parseJson(json);
-
-		String link = (String)jsonData.get(value);
-		return link;
-	}
-
 }
