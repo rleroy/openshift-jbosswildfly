@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
@@ -34,7 +35,7 @@ public class AvatarServlet extends HttpServlet {
 		response.setDateHeader("Expires", now + TimeUnit.MILLISECONDS.convert(24, TimeUnit.HOURS));
 
 		String uri = request.getRequestURI();
-		String[] params = uri.replace(".png", "").split("/");
+		String[] params = URLDecoder.decode(uri, "UTF-8").replace(".png", "").split("/");
 		try {
 			BufferedImage img = generator.buildImage(params[2], params[3], params[4].split("-"));
 			OutputStream out = response.getOutputStream();
