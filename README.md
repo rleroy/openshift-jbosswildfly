@@ -4,4 +4,4 @@ https://github.com/openshift/origin-server/tree/master/cartridges/openshift-orig
 
 Logs are available on : wildfly/standalone/log/server.log
 
-Add 2 remote all.
+Should be in both repositories.
