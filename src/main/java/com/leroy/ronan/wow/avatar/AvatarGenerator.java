@@ -3,9 +3,9 @@ package com.leroy.ronan.wow.avatar;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -141,9 +142,10 @@ public class AvatarGenerator {
 	private String post(CloseableHttpClient httpclient, BasicCookieStore cookieStore, String uri, NameValuePair...params) throws URISyntaxException, ClientProtocolException, IOException{
 		String res = null;
         HttpUriRequest post = RequestBuilder.post()
-                .setUri(new URI(uri))
-                .addParameters(params)
-                .build();
+        		.setUri(uri)
+        		.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), Charset.forName("UTF-8")))
+        		.build();
+        
         CloseableHttpResponse response = httpclient.execute(post);
         try {
             HttpEntity entity = response.getEntity();
