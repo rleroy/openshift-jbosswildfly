@@ -40,7 +40,7 @@ public class AvatarGenerator {
 
 	private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
 
-	private Map<String, BufferedImage> cache = new ExpiringCache<>(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES));
+	private Map<String, BufferedImage> cache = new ExpiringCache<>(TimeUnit.MILLISECONDS.convert(3, TimeUnit.HOURS));
 	
 	public BufferedImage buildImage(String region, String realm, String...characters) throws ClientProtocolException, IOException, URISyntaxException {
 		String key = buildKey(region, realm, characters);
@@ -74,7 +74,11 @@ public class AvatarGenerator {
                 .setDefaultCookieStore(cookieStore)
                 .build();
 		try {
-	        get(cookieStore, httpclient, "http://www.best-signatures.com/wow/");
+			for (String character : characters){
+				this.get(cookieStore, httpclient, "http://www.best-signatures.com/api/?region="+region+"&realm="+realm+"&char="+character+"&type=Sign9&preview=1&c1=class");
+			}
+			
+			get(cookieStore, httpclient, "http://www.best-signatures.com/wow/");
 	        
 	        this.post(httpclient, cookieStore, 
 	        		"http://www.best-signatures.com/ajax/generator/load/", 

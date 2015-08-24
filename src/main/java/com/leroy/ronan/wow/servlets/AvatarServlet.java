@@ -29,10 +29,10 @@ public class AvatarServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		long now = System.currentTimeMillis();
-		response.addHeader("Cache-Control", "max-age=" + TimeUnit.SECONDS.convert(24, TimeUnit.HOURS));
+		response.addHeader("Cache-Control", "max-age=" + TimeUnit.SECONDS.convert(1, TimeUnit.HOURS));
 		response.addHeader("Cache-Control", "must-revalidate");
 		response.setDateHeader("Last-Modified", now);
-		response.setDateHeader("Expires", now + TimeUnit.MILLISECONDS.convert(24, TimeUnit.HOURS));
+		response.setDateHeader("Expires", now + TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS));
 
 		String uri = request.getRequestURI();
 		String[] params = URLDecoder.decode(uri, "UTF-8").replace(".png", "").split("/");
