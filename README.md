@@ -5,3 +5,5 @@ https://github.com/openshift/origin-server/tree/master/cartridges/openshift-orig
 Logs are available on : wildfly/standalone/log/server.log
 
 Should be in both repositories.
+
+This commit is from work.
