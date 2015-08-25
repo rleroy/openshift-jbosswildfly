@@ -29,21 +29,17 @@ public class AvatarServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		long now = System.currentTimeMillis();
-		response.addHeader("Cache-Control", "max-age=" + TimeUnit.SECONDS.convert(1, TimeUnit.HOURS));
+		response.addHeader("Cache-Control", "max-age=" + TimeUnit.SECONDS.convert(6, TimeUnit.HOURS));
 		response.addHeader("Cache-Control", "must-revalidate");
 		response.setDateHeader("Last-Modified", now);
-		response.setDateHeader("Expires", now + TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS));
+		response.setDateHeader("Expires", now + TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS));
 
 		String uri = request.getRequestURI();
 		String[] params = URLDecoder.decode(uri, "UTF-8").replace(".png", "").split("/");
-		try {
-			BufferedImage img = generator.buildImage(params[2], params[3], params[4].split("-"));
-			OutputStream out = response.getOutputStream();
-			ImageIO.write(img, "png", out);
-			out.close();
-		} catch (URISyntaxException e) {
-			log(e.getMessage(), e);
-		}
+		BufferedImage img = generator.buildImage(params[2], params[3], params[4].split("-"));
+		OutputStream out = response.getOutputStream();
+		ImageIO.write(img, "png", out);
+		out.close();
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
