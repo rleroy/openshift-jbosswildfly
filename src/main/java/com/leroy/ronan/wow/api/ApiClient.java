@@ -9,6 +9,7 @@ import com.leroy.ronan.wow.api.service.ApiClientFileService;
 import com.leroy.ronan.wow.api.service.ApiClientMemService;
 import com.leroy.ronan.wow.api.service.ApiClientService;
 import com.leroy.ronan.wow.api.service.ApiClientWebService;
+import com.leroy.ronan.wow.beans.WowAuctions;
 import com.leroy.ronan.wow.beans.WowCharacter;
 import com.leroy.ronan.wow.beans.WowGuild;
 
@@ -35,6 +36,11 @@ public class ApiClient {
 	public WowGuild getGuild(String realm, String name) {
 		ApiResponse data = this.getData(ApiType.guild, realm, name);
         return new WowGuild(data.getJSON());
+	}
+	
+	public WowAuctions getAuctions(String realm) {
+		ApiResponse data = this.getData(ApiType.auction, "data", realm);
+        return new WowAuctions(data.getJSON());
 	}
 
 	private ApiResponse getData(ApiType type, String realm, String name) {

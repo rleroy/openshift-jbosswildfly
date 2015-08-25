@@ -7,6 +7,7 @@ import java.util.Set;
 public enum ApiType {
     guild("members"),
 	character("items"),
+	auction,
 	;
 
     private Set<String> fields;
