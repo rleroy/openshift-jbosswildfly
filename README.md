@@ -4,6 +4,5 @@ https://github.com/openshift/origin-server/tree/master/cartridges/openshift-orig
 
 Logs are available on : wildfly/standalone/log/server.log
 
-Should be in both repositories.
 
-This commit is from work.
+Items : https://eu.api.battle.net/wow/item/109125?locale=en_GB&apikey=
