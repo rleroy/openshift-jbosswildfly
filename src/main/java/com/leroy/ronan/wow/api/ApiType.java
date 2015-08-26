@@ -8,6 +8,7 @@ public enum ApiType {
     guild("members"),
 	character("items"),
 	auction,
+	auctiontype,
 	;
 
     private Set<String> fields;
