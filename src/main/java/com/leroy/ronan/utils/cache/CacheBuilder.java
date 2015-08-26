@@ -2,41 +2,48 @@ package com.leroy.ronan.utils.cache;
 
 import java.io.File;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CacheBuilder<T> {
 
-    private CacheSpeed loading;
-    private CacheSpeed reading;
-    private Function<String, CacheResponse<T>> loader;
-/*
-    private Function<String, CacheResponse<T>> reader;
-    private Function<String, CacheResponse<T>> getter;
-  */  
+	private CacheSpeed loading;
+	private CacheSpeed reading;
+	private CacheSpeed writing;
+
+	private Function<String, T> load;
+
     private Function<String, File> keyToFile;
     private Function<File, T> fromFile;
     private BiConsumer<File, T> toFile;
+	private BiFunction<T, Long, Boolean> isExpired;
+
     
     public CacheBuilder() {
         super();
     }
 
-    public CacheBuilder<T> loading(CacheSpeed loading) {
-        this.loading = loading;
+	public CacheBuilder<T> loading(CacheSpeed speed) {
+		this.loading = speed;
         return this;
-    }
+	}
 
-    public CacheBuilder<T> reading(CacheSpeed reading) {
-        this.reading = reading;
+	public CacheBuilder<T> reading(CacheSpeed speed) {
+		this.reading = speed;
         return this;
-    }
+	}
 
-    public CacheBuilder<T> loadWith(Function<String, CacheResponse<T>> loader) {
-        this.loader = loader;
+	public CacheBuilder<T> writing(CacheSpeed speed) {
+		this.writing = speed;
         return this;
-    }
-    
-    public CacheBuilder<T> keyToFile(Function<String, File> keyToFile){
+	}
+
+	public CacheBuilder<T> loader(Function<String, T> load) {
+        this.load = load;
+        return this;
+	}
+
+	public CacheBuilder<T> keyToFile(Function<String, File> keyToFile){
         this.keyToFile = keyToFile;
         return this;
     }
@@ -51,9 +58,13 @@ public class CacheBuilder<T> {
         return this;
     }
 
-    public Cache<T> build() {
-        return new Cache<T>(keyToFile, fromFile, toFile);
+    public CacheBuilder<T> isExpired(BiFunction<T, Long, Boolean> isExpired){
+        this.isExpired = isExpired;
+        return this;
     }
-    
-    
+
+    public Cache<T> build() {
+        return new Cache<T>(loading, reading, writing, load, keyToFile, fromFile, toFile, isExpired);
+    }
+
 }
