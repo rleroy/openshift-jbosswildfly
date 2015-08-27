@@ -91,8 +91,10 @@ public class SimpleCacheSteps {
 				.build();
         service = builder.build();
         if (memData != null){
-            service.learn(KEY, memData, System.currentTimeMillis());
-            Thread.sleep(100);
+            service.learn(KEY, memData, 100);
+            if (OLD.equals(memData)){
+            	Thread.sleep(100);
+            }
         }
 	}
 
