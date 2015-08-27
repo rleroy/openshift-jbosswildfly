@@ -5,43 +5,30 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.leroy.ronan.utils.cache.simple.SimpleCache;
+
 public class CacheBuilder<T> {
 
-	private CacheSpeed loading;
-	private CacheSpeed reading;
-	private CacheSpeed writing;
-
 	private Function<String, T> load;
+    private BiFunction<T, Long, Boolean> isExpired;
 
     private Function<String, File> keyToFile;
     private Function<File, T> fromFile;
     private BiConsumer<File, T> toFile;
-	private BiFunction<T, Long, Boolean> isExpired;
 
-    
     public CacheBuilder() {
         super();
     }
-
-	public CacheBuilder<T> loading(CacheSpeed speed) {
-		this.loading = speed;
-        return this;
-	}
-
-	public CacheBuilder<T> reading(CacheSpeed speed) {
-		this.reading = speed;
-        return this;
-	}
-
-	public CacheBuilder<T> writing(CacheSpeed speed) {
-		this.writing = speed;
-        return this;
-	}
 
 	public CacheBuilder<T> loader(Function<String, T> load) {
         this.load = load;
         return this;
 	}
+
+    public CacheBuilder<T> isExpired(BiFunction<T, Long, Boolean> isExpired){
+        this.isExpired = isExpired;
+        return this;
+    }
 
 	public CacheBuilder<T> keyToFile(Function<String, File> keyToFile){
         this.keyToFile = keyToFile;
@@ -58,13 +45,8 @@ public class CacheBuilder<T> {
         return this;
     }
 
-    public CacheBuilder<T> isExpired(BiFunction<T, Long, Boolean> isExpired){
-        this.isExpired = isExpired;
-        return this;
-    }
-
-    public Cache<T> build() {
-        return new Cache<T>(loading, reading, writing, load, keyToFile, fromFile, toFile, isExpired);
+    public SimpleCache<T> build() {
+        return new SimpleCache<T>(load, isExpired, keyToFile, fromFile, toFile);
     }
 
 }
