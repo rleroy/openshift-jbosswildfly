@@ -2,7 +2,7 @@ package com.leroy.ronan.utils.cache.beans;
 
 import java.util.function.BiFunction;
 
-public class PersistedEntry<T> extends CacheEntry<T> implements ExpirableEntry {
+public class PersistedEntry<T> extends CacheEntry<T> {
 
     private long lastModified;
     private BiFunction<T, Long, Boolean> isExpired;
@@ -13,7 +13,6 @@ public class PersistedEntry<T> extends CacheEntry<T> implements ExpirableEntry {
         this.isExpired = isExpired;
     }
 
-    @Override
     public boolean isExpired() {
         return isExpired.apply(getContent(), lastModified);
     }

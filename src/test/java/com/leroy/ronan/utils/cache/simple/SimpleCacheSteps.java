@@ -5,8 +5,9 @@ import java.io.File;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.junit.Assert;
 
-import com.leroy.ronan.utils.cache.CacheBuilder;
 import com.leroy.ronan.utils.cache.CacheResponse;
+import com.leroy.ronan.utils.cache.PersistedCache;
+import com.leroy.ronan.utils.cache.PersistedCacheBuilder;
 import com.leroy.ronan.utils.cache.TestCacheUtils;
 
 import cucumber.api.java.en.Given;
@@ -23,12 +24,12 @@ public class SimpleCacheSteps {
     private String memData;
     private String fsData;
 
-    private CacheBuilder<String> builder;
-    private SimpleCache<String> service;
+    private PersistedCacheBuilder<String> builder;
+    private PersistedCache<String> service;
 
 	@Given("^a simple cache service$")
 	public void a_cache_service() throws Throwable {
-        builder = new CacheBuilder<String>();
+        builder = new PersistedCacheBuilder<String>();
 	}
 
 	@Given("^data is ok$")
@@ -84,6 +85,8 @@ public class SimpleCacheSteps {
         TestCacheUtils.write(new File("cache-tmp/test/key.tmp"), fsData);
 
         service = builder
+                .timeToLiveAfterError(100)
+                .timeToLiveAfterSuccess(100)
 				.keyToFile(TestCacheUtils::keyToFile)
 		        .fromFile(TestCacheUtils::read)
 		        .toFile(TestCacheUtils::write)

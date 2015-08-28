@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.Assert;
 
+import com.leroy.ronan.utils.cache.CacheResponse;
 import com.leroy.ronan.wow.World;
 import com.leroy.ronan.wow.WowSteps;
 import com.leroy.ronan.wow.avatar.AvatarGenerator;
@@ -17,7 +18,7 @@ import cucumber.api.java.en.When;
 public class AvatarGeneratorSteps extends WowSteps{
 	
 	private List<String> characters;
-	private BufferedImage img;
+	private CacheResponse<BufferedImage> img;
 	
 	public AvatarGeneratorSteps(World world) {
 		super(world);
@@ -33,13 +34,13 @@ public class AvatarGeneratorSteps extends WowSteps{
 	
 	@When("^I get the avatar$")
 	public void i_get_the_avatar() throws Throwable {
-		AvatarGenerator generator = new AvatarGenerator();
-		this.img = generator.buildImage(getWorld().getRegion(), getWorld().getRealm(), characters.toArray(new String[0]));
+		AvatarGenerator generator = new AvatarGenerator(System.getenv("OPENSHIFT_DATA_DIR"));
+		this.img = generator.get(getWorld().getRegion(), getWorld().getRealm(), characters.toArray(new String[0]));
 	}
 
 	@Then("^an avatar is available$")
 	public void an_avatar_is_available() throws Throwable {
-		Assert.assertNotNull(this.img);
+		Assert.assertNotNull(this.img.getContent());
 	}
 
 }

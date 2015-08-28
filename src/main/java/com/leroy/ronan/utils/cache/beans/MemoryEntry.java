@@ -2,7 +2,7 @@ package com.leroy.ronan.utils.cache.beans;
 
 import com.leroy.ronan.utils.cache.CacheResponse;
 
-public class MemoryEntry<T> extends CacheEntry<T> implements CacheResponse<T>, ExpirableEntry{
+public class MemoryEntry<T> extends CacheEntry<T> implements CacheResponse<T> {
 
     private long created;
     private long timeToLive;
@@ -14,11 +14,18 @@ public class MemoryEntry<T> extends CacheEntry<T> implements CacheResponse<T>, E
     }
 
     @Override
-    public boolean isExpired() {
-        boolean res = false;
-        if (System.currentTimeMillis() - created > timeToLive){
-        	res = true;
-        }
-        return res;
+    public long getCreated() {
+        return created;
     }
+
+    @Override
+    public long getTimeToLive() {
+        return created + timeToLive - System.currentTimeMillis();
+    }
+
+    @Override
+    public boolean isExpired() {
+        return getTimeToLive() < 0;
+    }
+    
 }

@@ -11,4 +11,4 @@ https://forums.openshift.com/write-to-a-directory
 \> echo $OPENSHIFT_DATA_DIR
 .../app-root/data/
 
-String value = System.getenv("PE_CONF_PWD");
+String value = System.getenv("OPENSHIFT_DATA_DIR");
