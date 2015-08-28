@@ -3,8 +3,8 @@ Feature: Generate an avatar from a character
 Scenario: Make a multi characters avatar
 Given region is "eu"
 Given realm name is "Sargeras"
-Given I want character name "Custard" in image
-Given I want character name "Closer" in image
+Given I want character name "Snomead" in image
+Given I want character name "Pamynx" in image
  When I get the avatar
  Then an avatar is available
 

@@ -1,4 +1,4 @@
-@auction
+@ignore
 Feature: Gathering auction data
 
 Scenario: Auction data

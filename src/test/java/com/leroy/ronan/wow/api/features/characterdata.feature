@@ -10,6 +10,7 @@ Given character name is "Pamynx"
  Then I am able to know the ilvl of this character 
  Then I am able to know the achievementPoints of this character 
 
+@ignore
 Scenario: Character data
 Given character name is "Aphykith"
  When I get the character data

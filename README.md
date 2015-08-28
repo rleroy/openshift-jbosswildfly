@@ -12,3 +12,9 @@ https://forums.openshift.com/write-to-a-directory
 .../app-root/data/
 
 String value = System.getenv("OPENSHIFT_DATA_DIR");
+
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home
+
+export M2_HOME=/Users/rleroy/bin/apache-maven-3.3.3
+export PATH=$PATH:$M2_HOME/bin
