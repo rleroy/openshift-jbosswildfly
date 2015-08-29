@@ -34,11 +34,11 @@ public class TestCacheUtils {
     
     public static void write(File f, String s){
         try {
+            f.delete();
             if (s != null) {
+                f.delete();
                 f.createNewFile();
                 Files.write(f.toPath(), s.getBytes("utf-8"));
-            } else if (f.exists()){
-                f.delete();
             }
         } catch (IOException e) {
             log.error(e.getMessage(), e);

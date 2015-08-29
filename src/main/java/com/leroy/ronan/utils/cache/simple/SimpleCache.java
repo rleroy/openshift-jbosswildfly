@@ -2,6 +2,10 @@ package com.leroy.ronan.utils.cache.simple;
 
 import java.io.File;
 import java.lang.ref.SoftReference;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +40,11 @@ public class SimpleCache<T> implements PersistedCache<T> {
     			 Function<String, File> keyToFile, Function<File, T> fromFile, BiConsumer<File, T> toFile) {
         super();
         this.load = load;
-        this.isExpired = isExpired;
+        if (isExpired != null){
+            this.isExpired = isExpired;
+        } else {
+        	this.isExpired = this::isExpiredDefault;
+        }
         this.timeToLiveAfterError = timeToLiveAfterError;
         this.timeToLiveAfterSuccess = timeToLiveAfterSuccess;
         
@@ -70,7 +78,7 @@ public class SimpleCache<T> implements PersistedCache<T> {
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else {
-                response = learn(key, persisted.getContent(), System.currentTimeMillis() - persisted.getLastModified() + timeToLiveAfterSuccess);
+                response = learn(key, persisted.getContent(), persisted.getLastModified() + timeToLiveAfterSuccess - System.currentTimeMillis());
             }
         } else if (memorized.isExpired()) {
             PersistedEntry<T> persisted = read(key);
@@ -92,7 +100,7 @@ public class SimpleCache<T> implements PersistedCache<T> {
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else {
-                response = learn(key, persisted.getContent(), System.currentTimeMillis() - persisted.getLastModified() + timeToLiveAfterSuccess);
+                response = learn(key, persisted.getContent(), persisted.getLastModified() + timeToLiveAfterSuccess - System.currentTimeMillis());
             }
         } else {
             response = memorized;
@@ -121,7 +129,6 @@ public class SimpleCache<T> implements PersistedCache<T> {
             T value = fromFile.apply(f);
             res = new PersistedEntry<T>(value, f.lastModified(), isExpired);
         }
-
         return res;
     }
     
@@ -141,6 +148,21 @@ public class SimpleCache<T> implements PersistedCache<T> {
         log.debug("load("+key+")");
         T value = this.load.apply(key);
         return new LoadedEntry<T>(value);
+    }
+
+    private boolean isExpiredDefault(T t, long lastmodified){
+    	boolean res = false;
+    	LocalDateTime lastmodifiedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastmodified), ZoneId.systemDefault());
+    	log.debug("lastmodifiedDate:"+lastmodifiedDate.format(DateTimeFormatter.ISO_DATE_TIME));
+    	LocalDateTime expirationDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastmodified + timeToLiveAfterSuccess), ZoneId.systemDefault());
+    	log.debug("expirationDate..:"+expirationDate.format(DateTimeFormatter.ISO_DATE_TIME));
+    	LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+    	log.debug("now.............:"+now.format(DateTimeFormatter.ISO_DATE_TIME));
+    	if (now.isAfter(expirationDate)){
+    		res = true;
+    	}
+    	log.debug("isExpiredDefault:"+res);
+    	return res;
     }
 
 }

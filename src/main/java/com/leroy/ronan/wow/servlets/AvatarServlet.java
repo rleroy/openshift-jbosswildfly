@@ -21,7 +21,7 @@ public class AvatarServlet extends HttpServlet {
     
 	private static final long serialVersionUID = 1L;
      
-	private static AvatarGenerator generator = new AvatarGenerator(System.getenv("OPENSHIFT_DATA_DIR"));
+	private static AvatarGenerator generator = new AvatarGenerator(System.getenv("OPENSHIFT_DATA_DIR")+"apifiles/img/");
 	
     public AvatarServlet() {
         super();

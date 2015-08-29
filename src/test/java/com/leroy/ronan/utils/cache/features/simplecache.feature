@@ -32,7 +32,6 @@ Examples:
   | ko   | expired | empty   | expired  | expired   | expired  | 1    |
   | ko   | expired | expired | expired  | expired   | expired  | 1    |
 
-  
 Scenario: Loading error
 Given a simple cache service
 Given data is ko

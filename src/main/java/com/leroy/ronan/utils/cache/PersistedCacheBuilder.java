@@ -1,10 +1,16 @@
 package com.leroy.ronan.utils.cache;
 
 import java.io.File;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import org.apache.log4j.Logger;
 
 import com.leroy.ronan.utils.cache.simple.SimpleCache;
 
@@ -59,10 +65,6 @@ public class PersistedCacheBuilder<T> {
     }
 
     public PersistedCache<T> build() {
-        if (isExpired == null){
-            isExpired = (img, l) -> l + TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS) > System.currentTimeMillis();
-        }
         return new SimpleCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
     }
-
 }

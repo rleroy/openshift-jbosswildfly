@@ -82,22 +82,29 @@ public class SimpleCacheSteps {
 
 	@When("^I access the data$")
 	public void i_access_the_data() throws Throwable {
-        TestCacheUtils.write(new File("cache-tmp/test/key.tmp"), fsData);
-
+		long ttlSuccess = 1000;
+		long ttlError = 1000;
+		
         service = builder
-                .timeToLiveAfterError(100)
-                .timeToLiveAfterSuccess(100)
+                .timeToLiveAfterError(ttlError)
+                .timeToLiveAfterSuccess(ttlSuccess)
 				.keyToFile(TestCacheUtils::keyToFile)
 		        .fromFile(TestCacheUtils::read)
 		        .toFile(TestCacheUtils::write)
-		        .isExpired(TestCacheUtils::isExpired)
+		        //.isExpired(TestCacheUtils::isExpired)
 				.build();
         service = builder.build();
-        if (memData != null){
-            service.learn(KEY, memData, 100);
-            if (OLD.equals(memData)){
-            	Thread.sleep(100);
-            }
+        
+      	TestCacheUtils.write(new File("cache-tmp/test/key.tmp"), fsData);
+        if (OLD.equals(memData)){
+        	service.learn(KEY, memData, ttlSuccess);
+        }
+    	Thread.sleep(ttlSuccess);
+        if (FRESH.equals(fsData)){
+        	TestCacheUtils.write(new File("cache-tmp/test/key.tmp"), fsData);
+        }
+        if (FRESH.equals(memData)){
+        	service.learn(KEY, memData, ttlSuccess);
         }
 	}
 
