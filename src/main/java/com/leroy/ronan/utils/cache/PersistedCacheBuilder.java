@@ -1,18 +1,12 @@
 package com.leroy.ronan.utils.cache;
 
 import java.io.File;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.apache.log4j.Logger;
-
 import com.leroy.ronan.utils.cache.simple.SimpleCache;
+import com.leroy.ronan.utils.cache.simple.SynchronizedCache;
 
 public class PersistedCacheBuilder<T> {
 
@@ -25,6 +19,8 @@ public class PersistedCacheBuilder<T> {
     private Function<File, T> fromFile;
     private BiConsumer<File, T> toFile;
 
+    private boolean synchro = false;
+    
     public PersistedCacheBuilder() {
         super();
     }
@@ -63,8 +59,18 @@ public class PersistedCacheBuilder<T> {
         this.timeToLiveAfterSuccess = timeToLiveAfterSuccess;
         return this;
     }
+    
+	public void synchro() {
+		this.synchro = true;
+	}
+
 
     public PersistedCache<T> build() {
-        return new SimpleCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+    	if (synchro){
+    		return new SynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+    	} else {
+    		return new SimpleCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+    	}
     }
+
 }

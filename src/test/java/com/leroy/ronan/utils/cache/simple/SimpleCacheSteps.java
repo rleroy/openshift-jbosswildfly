@@ -1,8 +1,10 @@
 package com.leroy.ronan.utils.cache.simple;
 
 import java.io.File;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 
 import com.leroy.ronan.utils.cache.CacheResponse;
@@ -16,11 +18,16 @@ import cucumber.api.java.en.When;
 
 public class SimpleCacheSteps {
 
+    private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
+
     private static final String KEY   = TestCacheUtils.KEY;
     private static final String FRESH = TestCacheUtils.FRESH;
     private static final String OLD   = TestCacheUtils.OLD;
 
-    private MutableInt callCount;
+    private MutableInt loaderCallCount;
+    private MutableInt writerCallCount;
+    private MutableInt readerCallCount;
+    
     private String memData;
     private String fsData;
 
@@ -31,21 +38,26 @@ public class SimpleCacheSteps {
 	public void a_cache_service() throws Throwable {
         builder = new PersistedCacheBuilder<String>();
 	}
+	
+	@Given("^a synchronized cache service$")
+	public void a_synchronized_cache_service() throws Throwable {
+        builder = new PersistedCacheBuilder<String>();
+        builder.synchro();
+	}
+
 
 	@Given("^data is ok$")
 	public void data_is_ok() throws Throwable {
-		callCount = new MutableInt(0);
 		builder = builder.loader(key -> {
-									callCount.add(1);
+									loaderCallCount.add(1);
 									return FRESH;
 								});
 	}
 
 	@Given("^data is ko$")
 	public void data_is_ko() throws Throwable {
-        callCount = new MutableInt(0);
         builder = builder.loader(key -> {
-                                    callCount.add(1);
+                                    loaderCallCount.add(1);
                                     return null;
                                 });
 	}
@@ -82,6 +94,10 @@ public class SimpleCacheSteps {
 
 	@When("^I access the data$")
 	public void i_access_the_data() throws Throwable {
+		loaderCallCount = new MutableInt(0);
+		readerCallCount = new MutableInt(0);
+		writerCallCount = new MutableInt(0);
+		
 		long ttlSuccess = 1000;
 		long ttlError = 1000;
 		
@@ -89,8 +105,14 @@ public class SimpleCacheSteps {
                 .timeToLiveAfterError(ttlError)
                 .timeToLiveAfterSuccess(ttlSuccess)
 				.keyToFile(TestCacheUtils::keyToFile)
-		        .fromFile(TestCacheUtils::read)
-		        .toFile(TestCacheUtils::write)
+		        .fromFile(t -> {
+		        	readerCallCount.increment();
+	        		return TestCacheUtils.read(t);
+		        })
+		        .toFile((f, s) -> {
+		        	writerCallCount.increment();
+		        	TestCacheUtils.write(f, s);
+		        })
 		        //.isExpired(TestCacheUtils::isExpired)
 				.build();
         service = builder.build();
@@ -107,6 +129,13 @@ public class SimpleCacheSteps {
         	service.learn(KEY, memData, ttlSuccess);
         }
 	}
+	
+	@When("^I access (\\d+) time the data at once$")
+	public void i_access_time_the_data_at_once(int nb) throws Throwable {
+		i_access_the_data();
+		IntStream.range(0, nb).parallel().forEach(i -> service.get(KEY));
+	}
+
 
 	@Then("^I should get the response fresh$")
 	public void i_should_get_the_response_fresh() throws Throwable {
@@ -159,8 +188,23 @@ public class SimpleCacheSteps {
         Assert.assertEquals(OLD, TestCacheUtils.read(TestCacheUtils.keyToFile(KEY)));
 	}
 
+	@Then("^data should have been read once$")
+	public void data_should_have_been_read_once() throws Throwable {
+		Assert.assertEquals(1, readerCallCount.intValue());
+	}
+
+	@Then("^data should have been loaded once$")
+	public void data_should_have_been_loaded_once() throws Throwable {
+		Assert.assertEquals(1, loaderCallCount.intValue());
+	}
+
+	@Then("^data should have been written once$")
+	public void data_should_have_been_written_once() throws Throwable {
+		Assert.assertEquals(1, writerCallCount.intValue());
+	}
+	
 	@Then("^the number of call to the loader should be (\\d+)$")
 	public void the_number_of_call_to_the_loader_should_be(int call) throws Throwable {
-		Assert.assertEquals(call, callCount.intValue());
+		Assert.assertEquals(call, loaderCallCount.intValue());
 	}
 }

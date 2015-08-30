@@ -152,16 +152,11 @@ public class SimpleCache<T> implements PersistedCache<T> {
 
     private boolean isExpiredDefault(T t, long lastmodified){
     	boolean res = false;
-    	LocalDateTime lastmodifiedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastmodified), ZoneId.systemDefault());
-    	log.debug("lastmodifiedDate:"+lastmodifiedDate.format(DateTimeFormatter.ISO_DATE_TIME));
     	LocalDateTime expirationDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastmodified + timeToLiveAfterSuccess), ZoneId.systemDefault());
-    	log.debug("expirationDate..:"+expirationDate.format(DateTimeFormatter.ISO_DATE_TIME));
     	LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-    	log.debug("now.............:"+now.format(DateTimeFormatter.ISO_DATE_TIME));
     	if (now.isAfter(expirationDate)){
     		res = true;
     	}
-    	log.debug("isExpiredDefault:"+res);
     	return res;
     }
 
