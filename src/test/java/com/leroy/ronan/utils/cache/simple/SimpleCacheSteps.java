@@ -45,6 +45,11 @@ public class SimpleCacheSteps {
         builder.synchro();
 	}
 
+	@Given("^an asynchronized cache service$")
+	public void an_asynchronized_cache_service() throws Throwable {
+        builder = new PersistedCacheBuilder<String>();
+        builder.asynchro();
+	}
 
 	@Given("^data is ok$")
 	public void data_is_ok() throws Throwable {

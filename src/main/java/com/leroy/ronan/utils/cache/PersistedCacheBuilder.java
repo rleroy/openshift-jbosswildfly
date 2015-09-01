@@ -5,6 +5,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.leroy.ronan.utils.cache.simple.AsynchronizedCache;
 import com.leroy.ronan.utils.cache.simple.SimpleCache;
 import com.leroy.ronan.utils.cache.simple.SynchronizedCache;
 
@@ -20,6 +21,7 @@ public class PersistedCacheBuilder<T> {
     private BiConsumer<File, T> toFile;
 
     private boolean synchro = false;
+    private boolean asynchro = false;
     
     public PersistedCacheBuilder() {
         super();
@@ -64,13 +66,20 @@ public class PersistedCacheBuilder<T> {
 		this.synchro = true;
 	}
 
+	public void asynchro() {
+		this.asynchro = true;
+	}
+
 
     public PersistedCache<T> build() {
-    	if (synchro){
+    	if (asynchro) {
+    		return new AsynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+    	} else if (synchro){
     		return new SynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
     	} else {
     		return new SimpleCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
     	}
     }
+
 
 }

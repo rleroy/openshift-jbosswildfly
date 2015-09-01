@@ -1,4 +1,3 @@
-@wip
 Feature: Cache service
 
 Scenario: Read once
