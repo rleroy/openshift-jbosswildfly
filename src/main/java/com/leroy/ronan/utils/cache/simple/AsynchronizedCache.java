@@ -17,10 +17,15 @@ public class AsynchronizedCache<T> extends SynchronizedCache<T>{
 
     private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
 
+    private long timeToWaitResponse;
+    private long timeToLiveIfNoResponse;
+    
 	public AsynchronizedCache(Function<String, T> load, BiFunction<T, Long, Boolean> isExpired,
-			long timeToLiveAfterError, long timeToLiveAfterSuccess, Function<String, File> keyToFile,
-			Function<File, T> fromFile, BiConsumer<File, T> toFile) {
+			long timeToLiveAfterError, long timeToLiveAfterSuccess, long timeToWaitResponse, long timeToLiveIfNoResponse,
+			Function<String, File> keyToFile, Function<File, T> fromFile, BiConsumer<File, T> toFile) {
 		super(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+		this.timeToWaitResponse = timeToWaitResponse;
+		this.timeToLiveIfNoResponse = timeToLiveIfNoResponse;
 	}
 
 	@Override
@@ -28,11 +33,11 @@ public class AsynchronizedCache<T> extends SynchronizedCache<T>{
 		CacheResponse<T> res = null;
 		CompletableFuture<CacheResponse<T>> future = CompletableFuture.supplyAsync(() -> super.get(key));
 		try {
-			res = future.get(10, TimeUnit.MILLISECONDS);
+			res = future.get(timeToWaitResponse, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			res = future.getNow(super.recall(key));
 			if (res == null){
-				this.learn(key, null, 10);
+				this.learn(key, null, timeToLiveIfNoResponse);
 				res = super.recall(key);
 			}
 		}

@@ -1,5 +1,18 @@
 Feature: Asynchronized cache service
 
+@wip
+Scenario: Fast answer
+Given an asynchronized cache service
+Given data is ok but slow
+Given file system data is empty
+Given memory data is empty
+ When I access 10 time the data at once
+  And I wait for the end of the loading
+ When I access 10 time the data at once
+ Then data should have been loaded once
+  And first batch of responses should have been null with a low ttl
+  And second batch of responses should have been fresh with a high ttl
+
 Scenario: Read once
 Given an asynchronized cache service
 Given data is ok

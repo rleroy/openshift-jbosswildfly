@@ -1,6 +1,10 @@
 package com.leroy.ronan.utils.cache.simple;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -24,6 +28,12 @@ public class CacheFeatureSteps {
     private static final String FRESH = TestCacheUtils.FRESH;
     private static final String OLD   = TestCacheUtils.OLD;
 
+    private static final long loadingTime = 1000;
+    private static final long timeToLiveSuccess = 60000;
+    private static final long timeToLiveError = 1000;
+    private static final long timeToWaitResponse = 100;
+    private static final long timeToLiveIfNoResponse = 100;
+    
     private MutableInt loaderCallCount;
     private MutableInt writerCallCount;
     private MutableInt readerCallCount;
@@ -33,6 +43,8 @@ public class CacheFeatureSteps {
 
     private PersistedCacheBuilder<String> builder;
     private PersistedCache<String> service;
+    
+    private List<Set<CacheResponse<String>>> responsesByBatch = new ArrayList<>();
 
 	@Given("^a simple cache service$")
 	public void a_cache_service() throws Throwable {
@@ -49,12 +61,29 @@ public class CacheFeatureSteps {
 	public void an_asynchronized_cache_service() throws Throwable {
         builder = new PersistedCacheBuilder<String>();
         builder.asynchro();
+        builder.timeToWaitResponse(timeToWaitResponse);
+        builder.timeToLiveIfNoResponse(timeToLiveIfNoResponse);
 	}
 
 	@Given("^data is ok$")
 	public void data_is_ok() throws Throwable {
 		builder = builder.loader(key -> {
 									loaderCallCount.add(1);
+									return FRESH;
+								});
+	}
+
+	@Given("^data is ok but slow$")
+	public void data_is_ok_but_slow() throws Throwable {
+		builder = builder.loader(key -> {
+									loaderCallCount.add(1);
+									try {
+										Thread.sleep(loadingTime);
+									} catch (Exception e) {
+										log.error(e.getMessage());
+									}
+									log.info("Loading done !");
+
 									return FRESH;
 								});
 	}
@@ -103,12 +132,9 @@ public class CacheFeatureSteps {
 		readerCallCount = new MutableInt(0);
 		writerCallCount = new MutableInt(0);
 		
-		long ttlSuccess = 60000;
-		long ttlError = 1000;
-		
         service = builder
-                .timeToLiveAfterError(ttlError)
-                .timeToLiveAfterSuccess(ttlSuccess)
+                .timeToLiveAfterError(timeToLiveError)
+                .timeToLiveAfterSuccess(timeToLiveSuccess)
 				.keyToFile(TestCacheUtils::keyToFile)
 		        .fromFile(t -> {
 		        	readerCallCount.increment();
@@ -130,7 +156,7 @@ public class CacheFeatureSteps {
         if (OLD.equals(memData)){
         	service.learn(KEY, memData, 0);
         } else if (FRESH.equals(memData)){
-        	service.learn(KEY, memData, ttlSuccess);
+        	service.learn(KEY, memData, timeToLiveSuccess);
         }
         
         Thread.sleep(50);
@@ -139,9 +165,15 @@ public class CacheFeatureSteps {
 	@When("^I access (\\d+) time the data at once$")
 	public void i_access_time_the_data_at_once(int nb) throws Throwable {
 		i_access_the_data();
-		IntStream.range(0, nb).parallel().forEach(i -> service.get(KEY));
+		Set<CacheResponse<String>> responses = new HashSet<>();
+		IntStream.range(0, nb).parallel().forEach(i -> responses.add(service.get(KEY)));
+		responsesByBatch.add(responses);
 	}
 
+	@When("^I wait for the end of the loading$")
+	public void i_wait_for_the_end_of_the_loading() throws Throwable {
+		Thread.sleep(loadingTime*2);
+	}
 
 	@Then("^I should get the response fresh$")
 	public void i_should_get_the_response_fresh() throws Throwable {
@@ -213,4 +245,21 @@ public class CacheFeatureSteps {
 	public void the_number_of_call_to_the_loader_should_be(int call) throws Throwable {
 		Assert.assertEquals(call, loaderCallCount.intValue());
 	}
+	
+	@Then("^first batch of responses should have been null with a low ttl$")
+	public void first_batch_of_answers_should_have_been_null_with_a_low_ttl() throws Throwable {
+		responsesByBatch.get(0).stream().forEach(response -> {
+			Assert.assertEquals(null, response.getContent());
+			Assert.assertTrue(response.getTimeToLive() <= timeToLiveIfNoResponse);
+		});
+	}
+
+	@Then("^second batch of responses should have been fresh with a high ttl$")
+	public void second_batch_of_answers_should_have_been_fresh_with_a_high_ttl() throws Throwable {
+		responsesByBatch.get(1).stream().forEach(response -> {
+			Assert.assertEquals(FRESH, response.getContent());
+			Assert.assertTrue(response.getTimeToLive() > timeToLiveIfNoResponse);
+		});
+	}
+
 }

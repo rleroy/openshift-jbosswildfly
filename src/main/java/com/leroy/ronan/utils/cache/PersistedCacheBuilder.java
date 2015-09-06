@@ -15,6 +15,8 @@ public class PersistedCacheBuilder<T> {
     private BiFunction<T, Long, Boolean> isExpired;
     private long timeToLiveAfterError;
     private long timeToLiveAfterSuccess;
+    private long timeToWaitResponse;
+    private long timeToLiveIfNoResponse;
     
     private Function<String, File> keyToFile;
     private Function<File, T> fromFile;
@@ -62,6 +64,16 @@ public class PersistedCacheBuilder<T> {
         return this;
     }
     
+    public PersistedCacheBuilder<T> timeToWaitResponse(long timeToWaitResponse){
+        this.timeToWaitResponse = timeToWaitResponse;
+        return this;
+    }
+    
+    public PersistedCacheBuilder<T> timeToLiveIfNoResponse(long timeToLiveIfNoResponse){
+        this.timeToLiveIfNoResponse = timeToLiveIfNoResponse;
+        return this;
+    }
+    
 	public void synchro() {
 		this.synchro = true;
 	}
@@ -73,7 +85,7 @@ public class PersistedCacheBuilder<T> {
 
     public PersistedCache<T> build() {
     	if (asynchro) {
-    		return new AsynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+    		return new AsynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, timeToWaitResponse, timeToLiveIfNoResponse, keyToFile, fromFile, toFile);
     	} else if (synchro){
     		return new SynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
     	} else {
