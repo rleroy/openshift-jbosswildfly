@@ -9,7 +9,7 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(format={"pretty"},
                  monochrome=true,
                  strict=true
-                 ,tags = {"~@ignore", "@wip"}
+                 ,tags = {"~@ignore"}
                 )
 public class CacheFeatureTest {
 

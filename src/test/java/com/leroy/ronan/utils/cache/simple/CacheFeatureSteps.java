@@ -16,7 +16,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-public class SimpleCacheSteps {
+public class CacheFeatureSteps {
 
     private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
 
@@ -103,7 +103,7 @@ public class SimpleCacheSteps {
 		readerCallCount = new MutableInt(0);
 		writerCallCount = new MutableInt(0);
 		
-		long ttlSuccess = 1000;
+		long ttlSuccess = 60000;
 		long ttlError = 1000;
 		
         service = builder
@@ -118,21 +118,22 @@ public class SimpleCacheSteps {
 		        	writerCallCount.increment();
 		        	TestCacheUtils.write(f, s);
 		        })
-		        //.isExpired(TestCacheUtils::isExpired)
 				.build();
         service = builder.build();
         
       	TestCacheUtils.write(new File("cache-tmp/test/key.tmp"), fsData);
+        if (OLD.equals(fsData)){
+        	File f = new File("cache-tmp/test/key.tmp");
+        	f.setLastModified(0);
+        }
+        
         if (OLD.equals(memData)){
+        	service.learn(KEY, memData, 0);
+        } else if (FRESH.equals(memData)){
         	service.learn(KEY, memData, ttlSuccess);
         }
-    	Thread.sleep(ttlSuccess);
-        if (FRESH.equals(fsData)){
-        	TestCacheUtils.write(new File("cache-tmp/test/key.tmp"), fsData);
-        }
-        if (FRESH.equals(memData)){
-        	service.learn(KEY, memData, ttlSuccess);
-        }
+        
+        Thread.sleep(50);
 	}
 	
 	@When("^I access (\\d+) time the data at once$")

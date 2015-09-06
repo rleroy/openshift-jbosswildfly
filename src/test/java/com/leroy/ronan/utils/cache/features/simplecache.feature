@@ -1,7 +1,7 @@
-Feature: Cache service
+Feature: Simple cache service
 
 Scenario Outline: Cache service behaviour
-Given a synchronized cache service
+Given a simple cache service
 Given data is <data>
 Given file system data is <fs>
 Given memory data is <mem>
@@ -33,7 +33,7 @@ Examples:
   | ko   | expired | expired | expired  | expired   | expired  | 1    |
 
 Scenario: Loading error
-Given a synchronized cache service
+Given a simple cache service
 Given data is ko
 Given file system data is empty
 Given memory data is empty

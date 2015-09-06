@@ -64,20 +64,25 @@ public class SimpleCache<T> implements PersistedCache<T> {
             if (persisted == null) {
                 LoadedEntry<T> loaded = load(key);
                 if (loaded.getContent() == null){
+                    log.debug("Memory is empty / Persistence is empty / Loading is KO");
                     response = learn(key,  null, timeToLiveAfterError);
                 } else {
+                    log.debug("Memory is empty / Persistence is empty / Loading is OK");
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else if (persisted.isExpired()) {
                 LoadedEntry<T> loaded = load(key);
                 if (loaded.getContent() == null){
+                    log.debug("Memory is empty / Persistence is expired / Loading is KO");
                     response = learn(key, persisted.getContent(), timeToLiveAfterError);
                 } else {
+                    log.debug("Memory is empty / Persistence is expired / Loading is OK");
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else {
+                log.debug("Memory is empty / Persistence is fresh");
                 response = learn(key, persisted.getContent(), persisted.getLastModified() + timeToLiveAfterSuccess - System.currentTimeMillis());
             }
         } else if (memorized.isExpired()) {
@@ -85,24 +90,30 @@ public class SimpleCache<T> implements PersistedCache<T> {
             if (persisted == null) {
                 LoadedEntry<T> loaded = load(key);
                 if (loaded.getContent() == null){
+                    log.debug("Memory is expired / Persistence is empty / Loading is KO");
                     write(key, memorized.getContent());
                     response = learn(key,  memorized.getContent(), timeToLiveAfterError);
                 } else {
+                    log.debug("Memory is expired / Persistence is empty / Loading is OK");
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else if (persisted.isExpired()) {
                 LoadedEntry<T> loaded = load(key);
                 if (loaded.getContent() == null){
+                    log.debug("Memory is expired / Persistence is expired / Loading is KO");
                     response = learn(key, memorized.getContent(), timeToLiveAfterError);
                 } else {
+                    log.debug("Memory is expired / Persistence is expired / Loading is OK");
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else {
+                log.debug("Memory is expired / Persistence is fresh");
                 response = learn(key, persisted.getContent(), persisted.getLastModified() + timeToLiveAfterSuccess - System.currentTimeMillis());
             }
         } else {
+            log.debug("Memory is fresh");
             response = memorized;
         }
         
