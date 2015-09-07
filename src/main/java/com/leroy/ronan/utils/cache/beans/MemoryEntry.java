@@ -27,5 +27,9 @@ public class MemoryEntry<T> extends CacheEntry<T> implements CacheResponse<T> {
     public boolean isExpired() {
         return getTimeToLive() < 0;
     }
-    
+
+	@Override
+	public String toString() {
+		return "created : "+created+" / timeToLive : "+timeToLive+" / isExpired : "+isExpired()+" / content : "+getContent();
+	}
 }

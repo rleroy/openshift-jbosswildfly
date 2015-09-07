@@ -64,25 +64,19 @@ public class SimpleCache<T> implements PersistedCache<T> {
             if (persisted == null) {
                 LoadedEntry<T> loaded = load(key);
                 if (loaded.getContent() == null){
-                    log.debug("Memory is empty / Persistence is empty / Loading is KO");
                     response = learn(key,  null, timeToLiveAfterError);
                 } else {
-                    log.debug("Memory is empty / Persistence is empty / Loading is OK");
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else if (persisted.isExpired()) {
+                response = learn(key, persisted.getContent(), timeToLiveAfterError);
                 LoadedEntry<T> loaded = load(key);
-                if (loaded.getContent() == null){
-                    log.debug("Memory is empty / Persistence is expired / Loading is KO");
-                    response = learn(key, persisted.getContent(), timeToLiveAfterError);
-                } else {
-                    log.debug("Memory is empty / Persistence is expired / Loading is OK");
+                if (loaded.getContent() != null){
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else {
-                log.debug("Memory is empty / Persistence is fresh");
                 response = learn(key, persisted.getContent(), persisted.getLastModified() + timeToLiveAfterSuccess - System.currentTimeMillis());
             }
         } else if (memorized.isExpired()) {
@@ -90,30 +84,24 @@ public class SimpleCache<T> implements PersistedCache<T> {
             if (persisted == null) {
                 LoadedEntry<T> loaded = load(key);
                 if (loaded.getContent() == null){
-                    log.debug("Memory is expired / Persistence is empty / Loading is KO");
                     write(key, memorized.getContent());
                     response = learn(key,  memorized.getContent(), timeToLiveAfterError);
                 } else {
-                    log.debug("Memory is expired / Persistence is empty / Loading is OK");
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else if (persisted.isExpired()) {
                 LoadedEntry<T> loaded = load(key);
                 if (loaded.getContent() == null){
-                    log.debug("Memory is expired / Persistence is expired / Loading is KO");
                     response = learn(key, memorized.getContent(), timeToLiveAfterError);
                 } else {
-                    log.debug("Memory is expired / Persistence is expired / Loading is OK");
                     write(key, loaded.getContent());
                     response = learn(key, loaded.getContent(), timeToLiveAfterSuccess);
                 }
             } else {
-                log.debug("Memory is expired / Persistence is fresh");
                 response = learn(key, persisted.getContent(), persisted.getLastModified() + timeToLiveAfterSuccess - System.currentTimeMillis());
             }
         } else {
-            log.debug("Memory is fresh");
             response = memorized;
         }
         
@@ -121,12 +109,11 @@ public class SimpleCache<T> implements PersistedCache<T> {
     }
     
     public MemoryEntry<T> recall(String key) {
-        log.debug("recall("+key+")");
-        return Optional.ofNullable(memory.get(key)).map(SoftReference::get).orElse(null);
+        MemoryEntry<T> res = Optional.ofNullable(memory.get(key)).map(SoftReference::get).orElse(null);
+        return res;
     }
     
     public MemoryEntry<T> learn(String key, T value, long timeToLive) {
-        log.debug("learn("+key+", VALUE, "+timeToLive+")");
         MemoryEntry<T> entry = new MemoryEntry<T>(value, timeToLive);
         memory.put(key, new SoftReference<MemoryEntry<T>>(entry));
         return entry;
@@ -135,7 +122,6 @@ public class SimpleCache<T> implements PersistedCache<T> {
     private PersistedEntry<T> read(String key) {
         PersistedEntry<T> res = null;
         File f = keyToFile.apply(key);
-        log.debug("read("+key+") <- "+f.getAbsolutePath());
         if (f.exists()) {
             T value = fromFile.apply(f);
             res = new PersistedEntry<T>(value, f.lastModified(), isExpired);
@@ -145,7 +131,6 @@ public class SimpleCache<T> implements PersistedCache<T> {
     
     private void write(String key, T value) {
         File f = keyToFile.apply(key);
-        log.debug("write("+key+", VALUE) -> "+f.getAbsolutePath());
         f.getParentFile().mkdirs();
         if (f.exists()){
             f.delete();
@@ -156,7 +141,6 @@ public class SimpleCache<T> implements PersistedCache<T> {
     }
     
     private LoadedEntry<T> load(String key) {
-        log.debug("load("+key+")");
         T value = this.load.apply(key);
         return new LoadedEntry<T>(value);
     }

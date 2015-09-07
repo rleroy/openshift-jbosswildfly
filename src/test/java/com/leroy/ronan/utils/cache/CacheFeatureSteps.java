@@ -1,4 +1,4 @@
-package com.leroy.ronan.utils.cache.simple;
+package com.leroy.ronan.utils.cache;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ import org.junit.Assert;
 import com.leroy.ronan.utils.cache.CacheResponse;
 import com.leroy.ronan.utils.cache.PersistedCache;
 import com.leroy.ronan.utils.cache.PersistedCacheBuilder;
-import com.leroy.ronan.utils.cache.TestCacheUtils;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -82,8 +81,6 @@ public class CacheFeatureSteps {
 									} catch (Exception e) {
 										log.error(e.getMessage());
 									}
-									log.info("Loading done !");
-
 									return FRESH;
 								});
 	}
@@ -126,8 +123,7 @@ public class CacheFeatureSteps {
         fsData = null;
     }
 
-	@When("^I access the data$")
-	public void i_access_the_data() throws Throwable {
+	private void buildService() throws Throwable {
 		loaderCallCount = new MutableInt(0);
 		readerCallCount = new MutableInt(0);
 		writerCallCount = new MutableInt(0);
@@ -145,7 +141,6 @@ public class CacheFeatureSteps {
 		        	TestCacheUtils.write(f, s);
 		        })
 				.build();
-        service = builder.build();
         
       	TestCacheUtils.write(new File("cache-tmp/test/key.tmp"), fsData);
         if (OLD.equals(fsData)){
@@ -162,9 +157,18 @@ public class CacheFeatureSteps {
         Thread.sleep(50);
 	}
 	
+	@When("^I access the data$")
+	public void i_access_the_data() throws Throwable {
+		if (service == null){
+			buildService();
+		}
+	}
+	
 	@When("^I access (\\d+) time the data at once$")
 	public void i_access_time_the_data_at_once(int nb) throws Throwable {
-		i_access_the_data();
+		if (service == null){
+			buildService();
+		}
 		Set<CacheResponse<String>> responses = new HashSet<>();
 		IntStream.range(0, nb).parallel().forEach(i -> responses.add(service.get(KEY)));
 		responsesByBatch.add(responses);
@@ -250,6 +254,14 @@ public class CacheFeatureSteps {
 	public void first_batch_of_answers_should_have_been_null_with_a_low_ttl() throws Throwable {
 		responsesByBatch.get(0).stream().forEach(response -> {
 			Assert.assertEquals(null, response.getContent());
+			Assert.assertTrue(response.getTimeToLive() <= timeToLiveIfNoResponse);
+		});
+	}
+	
+	@Then("^first batch of responses should have been expired with a low ttl$")
+	public void first_batch_of_responses_should_have_been_expired_with_a_low_ttl() throws Throwable {
+		responsesByBatch.get(0).stream().forEach(response -> {
+			Assert.assertEquals(OLD, response.getContent());
 			Assert.assertTrue(response.getTimeToLive() <= timeToLiveIfNoResponse);
 		});
 	}

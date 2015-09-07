@@ -12,6 +12,7 @@ import java.util.function.Function;
 import org.apache.log4j.Logger;
 
 import com.leroy.ronan.utils.cache.CacheResponse;
+import com.leroy.ronan.utils.cache.beans.MemoryEntry;
 
 public class AsynchronizedCache<T> extends SynchronizedCache<T>{
 
@@ -41,8 +42,23 @@ public class AsynchronizedCache<T> extends SynchronizedCache<T>{
 				res = super.recall(key);
 			}
 		}
-		System.out.println(res.getContent() + "/" + res.getTimeToLive());
 		return res;
 	}
+
+	@Override
+	public MemoryEntry<T> learn(String key, T value, long timeToLive) {
+		MemoryEntry<T> newEntry = new MemoryEntry<T>(value, timeToLive);
+		MemoryEntry<T> prevEntry = this.recall(key);
+		if (prevEntry == null || prevEntry.getTimeToLive() < newEntry.getTimeToLive()) {
+			synchronized ((this.getClass().getName()+".learn("+key+")").intern()) {
+				prevEntry = this.recall(key);
+				if (prevEntry == null || prevEntry.getTimeToLive() < newEntry.getTimeToLive()) {
+					prevEntry = super.learn(key, value, newEntry.getTimeToLive());
+				}
+			}
+		}
+		return prevEntry;
+	}
+	
 	
 }
