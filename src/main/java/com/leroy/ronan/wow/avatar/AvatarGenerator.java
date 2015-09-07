@@ -35,6 +35,9 @@ public class AvatarGenerator {
                 .keyToFile(this::keyToFile)
                 .fromFile(this::fromFile)
                 .toFile(this::toFile)
+                .asynchro()
+                .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.SECONDS))
+                .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .build()
                 ;
     }
