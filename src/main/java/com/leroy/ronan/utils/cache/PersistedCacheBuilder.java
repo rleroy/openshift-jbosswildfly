@@ -74,12 +74,14 @@ public class PersistedCacheBuilder<T> {
         return this;
     }
     
-	public void synchro() {
+	public PersistedCacheBuilder<T> synchro() {
 		this.synchro = true;
+		return this;
 	}
 
-	public void asynchro() {
+	public PersistedCacheBuilder<T> asynchro() {
 		this.asynchro = true;
+		return this;
 	}
 
 
