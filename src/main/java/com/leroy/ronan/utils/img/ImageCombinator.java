@@ -7,8 +7,10 @@ public class ImageCombinator {
 
 	public static BufferedImage combineLeftToRight(BufferedImage image1, BufferedImage image2) {
 		BufferedImage res;
-		if (image1 == null || image2 == null){
-			res = null;
+		if (image1 == null){
+			res = image2;
+		} else if (image2 == null){
+			res = image2;
 		} else {
 			int width = image1.getWidth() + image2.getWidth();
 			int height = Math.max(image1.getHeight(), image2.getHeight());
