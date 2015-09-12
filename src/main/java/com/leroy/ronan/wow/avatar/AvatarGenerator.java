@@ -4,7 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -21,21 +24,37 @@ public class AvatarGenerator {
 
     private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
 
-    private PersistedCache<BufferedImage> cache;
+    private PersistedCache<BufferedImage> cacheSingleImages;
+    private PersistedCache<BufferedImage> cacheMultiImages;
     private String cacheDir;
     
     public AvatarGenerator(String cacheDir){
         super();
         PersistedCacheBuilder<BufferedImage> builder = new PersistedCacheBuilder<>();
         this.cacheDir = cacheDir;
-        cache = builder
-                .loader(this::load)
-                .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
-                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
-                .keyToFile(this::keyToFile)
+        
+        cacheSingleImages = builder
+                .asynchro()
+                .name("single")
+                .loader(this::loadSingle)
+                .keyToFile(key -> this.keyToFile(key, "single"))
                 .fromFile(this::fromFile)
                 .toFile(this::toFile)
+                .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
+                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
+                .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS))
+                .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
+                .build()
+                ;
+        cacheMultiImages = builder
                 .asynchro()
+                .name("multi")
+                .loader(this::loadMulti)
+                .keyToFile(key -> this.keyToFile(key, "multi"))
+                .fromFile(this::fromFile)
+                .toFile(this::toFile)
+                .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
+                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
                 .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS))
                 .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .build()
@@ -43,36 +62,56 @@ public class AvatarGenerator {
     }
     
     public CacheResponse<BufferedImage> get(String region, String realm, String[] characters){
-        return cache.get(region+"/"+realm+"/"+StringUtils.join(characters, "-"));
+        return cacheMultiImages.get(region+"/"+realm+"/"+StringUtils.join(characters, "-"));
     }
 
-    private BufferedImage load(String key){
+    private BufferedImage loadSingle(String key){
+        String[] keyTab = key.split("/");
+        String region = keyTab[0];
+        String realm = keyTab[1];
+        String character = keyTab[2];
+
+        AvatarImage img = new AvatarImage(region, realm, character);
+        BufferedImage res = null;
+        try {
+            res = img.getImg();
+        } catch (URISyntaxException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        return res;
+    }
+    
+    private BufferedImage loadMulti(String key) {
         String[] keyTab = key.split("/");
         String region = keyTab[0];
         String realm = keyTab[1];
         String[] characters = keyTab[2].split("-");
-        
+        List<CompletableFuture<CacheResponse<BufferedImage>>> futures = Stream.of(characters)
+        	.map(c -> CompletableFuture.supplyAsync(() -> cacheSingleImages.get(region+"/"+realm+"/"+c)))
+        	.collect(Collectors.toList());
+        List<CacheResponse<BufferedImage>> responses = futures.stream()
+        	.map(f -> {
+				try {
+					return f.get();
+				} catch(Exception e) {
+					throw new RuntimeException(e);
+				}
+        	})
+        	.collect(Collectors.toList());
+        boolean notReady = responses.stream()
+        		.filter(r -> r.getContent() == null || r.isExpired())
+        		.findAny()
+        		.isPresent();
         BufferedImage res = null;
-        if (characters.length > 1){
-            res = Stream.of(characters)
-                    .map(c -> cache.get(region+"/"+realm+"/"+c))
-                    .map(r -> r.getContent())
-                    .reduce(ImageCombinator::combineLeftToRight)
-                    .orElse(null);
-        } else {
-            AvatarImage img = new AvatarImage(region, realm, characters[0]);
-            try {
-                res = img.getImg();
-            } catch (URISyntaxException | IOException e) {
-                log.error(e.getMessage(), e);
-            }
+        if (!notReady){
+        	res = responses.stream().map(r -> r.getContent()).reduce(ImageCombinator::combineLeftToRight).orElse(null);
         }
         return res;
     }
 
-    private File keyToFile(String key){
+    private File keyToFile(String key, String name){
         AvatarImage img = new AvatarImage(key);
-        return img.getFile(this.cacheDir);
+        return img.getFile(this.cacheDir+name+"/");
     }
 
     private BufferedImage fromFile(File f){
