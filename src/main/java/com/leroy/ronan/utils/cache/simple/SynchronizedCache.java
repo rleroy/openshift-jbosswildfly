@@ -9,10 +9,10 @@ import com.leroy.ronan.utils.cache.CacheResponse;
 
 public class SynchronizedCache<T> extends SimpleCache<T> {
 
-    public SynchronizedCache(Function<String, T> load, BiFunction<T, Long, Boolean> isExpired, 
+    public SynchronizedCache(String name, Function<String, T> load, BiFunction<T, Long, Boolean> isExpired, 
     		long timeToLiveAfterError, long timeToLiveAfterSuccess, 
     		Function<String, File> keyToFile, Function<File, T> fromFile, BiConsumer<File, T> toFile) {
-		super(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+		super(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
 	}
 
 	@Override

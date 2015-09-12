@@ -21,10 +21,10 @@ public class AsynchronizedCache<T> extends SynchronizedCache<T>{
     private long timeToWaitResponse;
     private long timeToLiveIfNoResponse;
     
-	public AsynchronizedCache(Function<String, T> load, BiFunction<T, Long, Boolean> isExpired,
+	public AsynchronizedCache(String name, Function<String, T> load, BiFunction<T, Long, Boolean> isExpired,
 			long timeToLiveAfterError, long timeToLiveAfterSuccess, long timeToWaitResponse, long timeToLiveIfNoResponse,
 			Function<String, File> keyToFile, Function<File, T> fromFile, BiConsumer<File, T> toFile) {
-		super(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+		super(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
 		this.timeToWaitResponse = timeToWaitResponse;
 		this.timeToLiveIfNoResponse = timeToLiveIfNoResponse;
 	}

@@ -25,6 +25,8 @@ public class SimpleCache<T> implements PersistedCache<T> {
 
     private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
 
+    private String name;
+    
 	private Function<String, T> load;
 	private BiFunction<T, Long, Boolean> isExpired;
     private long timeToLiveAfterError;
@@ -36,9 +38,16 @@ public class SimpleCache<T> implements PersistedCache<T> {
     
 	private Map<String, SoftReference<MemoryEntry<T>>> memory;
     
-    public SimpleCache(Function<String, T> load, BiFunction<T, Long, Boolean> isExpired, long timeToLiveAfterError, long timeToLiveAfterSuccess,
-    			 Function<String, File> keyToFile, Function<File, T> fromFile, BiConsumer<File, T> toFile) {
+    public SimpleCache(String name,
+    			Function<String, T> load, 
+    			BiFunction<T, Long, Boolean> isExpired, 
+    			long timeToLiveAfterError, 
+    			long timeToLiveAfterSuccess,
+    			Function<String, File> keyToFile, 
+    			Function<File, T> fromFile,
+    			BiConsumer<File, T> toFile) {
         super();
+        this.name = name;
         this.load = load;
         if (isExpired != null){
             this.isExpired = isExpired;
@@ -56,8 +65,8 @@ public class SimpleCache<T> implements PersistedCache<T> {
     }
 
     public CacheResponse<T> get(String key) {
+    	log.debug(name + ": get("+key+")");
         CacheResponse<T> response;
-        
         MemoryEntry<T> memorized = recall(key);
         if (memorized == null) {
             PersistedEntry<T> persisted = read(key);
@@ -104,8 +113,8 @@ public class SimpleCache<T> implements PersistedCache<T> {
         } else {
             response = memorized;
         }
-        
-        return response;
+    	log.debug(name + ": get("+key+") <- " +response);
+    	return response;
     }
     
     public MemoryEntry<T> recall(String key) {
@@ -120,12 +129,14 @@ public class SimpleCache<T> implements PersistedCache<T> {
     }
     
     private PersistedEntry<T> read(String key) {
-        PersistedEntry<T> res = null;
+    	log.debug(name + ": read("+key+")");
+    	PersistedEntry<T> res = null;
         File f = keyToFile.apply(key);
         if (f.exists()) {
             T value = fromFile.apply(f);
             res = new PersistedEntry<T>(value, f.lastModified(), isExpired);
         }
+    	log.debug(name + ": read("+key+") <- " +res);
         return res;
     }
     
@@ -141,7 +152,9 @@ public class SimpleCache<T> implements PersistedCache<T> {
     }
     
     private LoadedEntry<T> load(String key) {
-        T value = this.load.apply(key);
+    	log.debug(name + ": load("+key+")");
+    	T value = this.load.apply(key);
+    	log.debug(name + ": load("+key+") <- " + value);
         return new LoadedEntry<T>(value);
     }
 

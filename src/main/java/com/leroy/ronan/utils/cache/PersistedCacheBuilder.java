@@ -11,6 +11,7 @@ import com.leroy.ronan.utils.cache.simple.SynchronizedCache;
 
 public class PersistedCacheBuilder<T> {
 
+	private String name;
 	private Function<String, T> load;
     private BiFunction<T, Long, Boolean> isExpired;
     private long timeToLiveAfterError;
@@ -29,6 +30,11 @@ public class PersistedCacheBuilder<T> {
         super();
     }
 
+	public PersistedCacheBuilder<T> name(String name) {
+        this.name = name;
+        return this;
+	}
+    
 	public PersistedCacheBuilder<T> loader(Function<String, T> load) {
         this.load = load;
         return this;
@@ -87,11 +93,11 @@ public class PersistedCacheBuilder<T> {
 
     public PersistedCache<T> build() {
     	if (asynchro) {
-    		return new AsynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, timeToWaitResponse, timeToLiveIfNoResponse, keyToFile, fromFile, toFile);
+    		return new AsynchronizedCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, timeToWaitResponse, timeToLiveIfNoResponse, keyToFile, fromFile, toFile);
     	} else if (synchro){
-    		return new SynchronizedCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+    		return new SynchronizedCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
     	} else {
-    		return new SimpleCache<T>(load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+    		return new SimpleCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
     	}
     }
 
