@@ -1,3 +1,4 @@
+@cache
 Feature: Asynchronized cache service
 
 Scenario: Fast answer empty
@@ -12,7 +13,6 @@ Given memory data is empty
   And first batch of responses should have been null with a low ttl
   And second batch of responses should have been fresh with a high ttl
 
-@wip
 Scenario: Fast answer expired
 Given an asynchronized cache service
 Given data is ok but slow

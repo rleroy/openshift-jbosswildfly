@@ -1,3 +1,4 @@
+@cache
 Feature: Simple cache service
 
 Scenario Outline: Cache service behaviour

@@ -1,3 +1,4 @@
+@cache
 Feature: Synchronized cache service
 
 Scenario: Read once
