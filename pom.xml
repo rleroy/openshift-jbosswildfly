@@ -62,11 +62,6 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
 		</dependency>
-		<dependency>
-			<groupId>com.jolira</groupId>
-			<artifactId>expiring-cache</artifactId>
-			<version>1.0.16</version>
-		</dependency>
 
 		<dependency>
 			<groupId>info.cukes</groupId>
