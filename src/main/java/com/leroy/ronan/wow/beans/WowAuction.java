@@ -4,13 +4,13 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-public class WowAuction {
+public class WowAuction extends WowJson{
 
 	private String url;
 	private Long lastModified;
 	
 	public WowAuction(String json) {
-        super();
+        super(json);
         
         JSONObject obj = (JSONObject)JSONValue.parse(json);
         JSONArray files = (JSONArray)obj.get("files");

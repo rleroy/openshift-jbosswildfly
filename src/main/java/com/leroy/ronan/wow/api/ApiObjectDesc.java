@@ -1,21 +1,21 @@
 package com.leroy.ronan.wow.api;
 
-public class ApiKey {
+public class ApiObjectDesc {
 
 	private String zone;
 	private ApiType type;
 	private String realm;
 	private String name;
 
-	public static ApiKey of(String key){
-		return new ApiKey(key);
+	public static ApiObjectDesc of(String desc){
+		return new ApiObjectDesc(desc);
 	}
 	
-	public static ApiKey of(String zone, ApiType type, String realm, String name){
-		return new ApiKey(zone, type, realm, name);
+	public static ApiObjectDesc of(String zone, ApiType type, String realm, String name){
+		return new ApiObjectDesc(zone, type, realm, name);
 	}
 	
-	private ApiKey(String zone, ApiType type, String realm, String name) {
+	private ApiObjectDesc(String zone, ApiType type, String realm, String name) {
 		super();
 		this.zone = zone;
 		this.type = type;
@@ -23,9 +23,9 @@ public class ApiKey {
 		this.name = name;
 	}
 	
-	private ApiKey(String key){
+	private ApiObjectDesc(String desc){
 		super();
-		String[] parts = key.split("/");
+		String[] parts = desc.split("/");
 		this.zone = parts[0];
 		this.type = ApiType.valueOf(parts[1]);
 		this.realm = parts[2];
