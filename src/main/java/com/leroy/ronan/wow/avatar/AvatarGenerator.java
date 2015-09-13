@@ -44,9 +44,9 @@ public class AvatarGenerator {
                 .keyToFile(key -> this.keyToFile(key, "single"))
                 .fromFile(this::fromFile)
                 .toFile(this::toFile)
-                .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
+                .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
                 .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
-                .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS))
+                .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .build()
                 ;
@@ -57,7 +57,7 @@ public class AvatarGenerator {
                 .keyToFile(key -> this.keyToFile(key, "multi"))
                 .fromFile(this::fromFile)
                 .toFile(this::toFile)
-                .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
+                .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
                 .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
                 .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS))
                 .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
@@ -78,7 +78,7 @@ public class AvatarGenerator {
         AvatarImage img = new AvatarImage(zone, realm, name);
         WowCharacter character = api.getCharacter(zone, realm, name);
         boolean useIlvl = true;
-        if (character.getLevel() < WowCharacter.MAXLEVEL) {;
+        if (character.getLevel() < WowCharacter.MAXLEVEL) {
         	useIlvl = false;
     	}
         BufferedImage res = null;

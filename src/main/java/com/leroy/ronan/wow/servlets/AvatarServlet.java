@@ -13,9 +13,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.leroy.ronan.utils.cache.CacheResponse;
-import com.leroy.ronan.wow.api.ApiClient;
-import com.leroy.ronan.wow.api.cache.ApiClientCached;
 import com.leroy.ronan.wow.avatar.AvatarGenerator;
 import com.leroy.ronan.wow.services.ServiceProvider;
 
@@ -23,9 +23,10 @@ import com.leroy.ronan.wow.services.ServiceProvider;
 public class AvatarServlet extends HttpServlet {
     
 	private static final long serialVersionUID = 1L;
-    
+    private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
+
 	private static final String root = System.getenv("OPENSHIFT_DATA_DIR")+"apifiles";
-	private static AvatarGenerator generator = ServiceProvider.getAvatar(root);
+	private static final AvatarGenerator generator = ServiceProvider.getAvatar(root);
 	
     public AvatarServlet() {
         super();
@@ -35,6 +36,7 @@ public class AvatarServlet extends HttpServlet {
 
 		String uri = request.getRequestURI();
 		String[] params = URLDecoder.decode(uri, "UTF-8").replace(".png", "").split("/");
+		
 		CacheResponse<BufferedImage> img = generator.get(params[2], params[3], params[4].split("-"));
 
 		long now = System.currentTimeMillis();
@@ -48,7 +50,7 @@ public class AvatarServlet extends HttpServlet {
 	        ImageIO.write(img.getContent(), "png", out);
 	        out.close();
 		} else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            response.sendRedirect("/images/ajax-loader.gif");
 		}
 	}
 
