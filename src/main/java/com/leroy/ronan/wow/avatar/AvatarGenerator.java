@@ -54,7 +54,7 @@ public class AvatarGenerator {
                 .fromFile(this::fromFile)
                 .toFile(this::toFile)
                 .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
-                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
+                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
                 .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS))
                 .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .build()
@@ -86,32 +86,36 @@ public class AvatarGenerator {
         String region = keyTab[0];
         String realm = keyTab[1];
         String[] characters = keyTab[2].split("-");
-        List<CompletableFuture<CacheResponse<BufferedImage>>> futures = Stream.of(characters)
-        	.map(c -> CompletableFuture.supplyAsync(() -> cacheSingleImages.get(region+"/"+realm+"/"+c)))
-        	.collect(Collectors.toList());
-        List<CacheResponse<BufferedImage>> responses = futures.stream()
-        	.map(f -> {
-				try {
-					return f.get();
-				} catch(Exception e) {
-					throw new RuntimeException(e);
-				}
-        	})
-        	.collect(Collectors.toList());
-        boolean notReady = responses.stream()
-        		.filter(r -> r.getContent() == null || r.isExpired())
-        		.findAny()
-        		.isPresent();
         BufferedImage res = null;
-        if (!notReady){
-        	res = responses.stream().map(r -> r.getContent()).reduce(ImageCombinator::combineLeftToRight).orElse(null);
+        if (characters.length == 1) {
+        	res = loadSingle(key);
+        }else{
+	        List<CompletableFuture<CacheResponse<BufferedImage>>> futures = Stream.of(characters)
+	        	.map(c -> CompletableFuture.supplyAsync(() -> cacheSingleImages.get(region+"/"+realm+"/"+c)))
+	        	.collect(Collectors.toList());
+	        List<CacheResponse<BufferedImage>> responses = futures.stream()
+	        	.map(f -> {
+					try {
+						return f.get();
+					} catch(Exception e) {
+						throw new RuntimeException(e);
+					}
+	        	})
+	        	.collect(Collectors.toList());
+	        boolean notReady = responses.stream()
+	        		.filter(r -> r.getContent() == null || r.isExpired())
+	        		.findAny()
+	        		.isPresent();
+	        if (!notReady){
+	        	res = responses.stream().map(r -> r.getContent()).reduce(ImageCombinator::combineLeftToRight).orElse(null);
+	        }
         }
         return res;
     }
 
     private File keyToFile(String key, String name){
         AvatarImage img = new AvatarImage(key);
-        return img.getFile(this.cacheDir+name+"/");
+        return img.getFile(this.cacheDir, name);
     }
 
     private BufferedImage fromFile(File f){

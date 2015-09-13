@@ -1,5 +1,5 @@
+@wow
 Feature: Gathering guild data
-
 
 Scenario: Guild data
 Given region is "eu"

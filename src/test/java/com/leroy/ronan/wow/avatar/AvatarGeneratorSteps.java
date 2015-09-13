@@ -34,7 +34,7 @@ public class AvatarGeneratorSteps extends WowSteps{
 	
 	@When("^I get the avatar$")
 	public void i_get_the_avatar() throws Throwable {
-		AvatarGenerator generator = new AvatarGenerator("apifiles/img/");
+		AvatarGenerator generator = new AvatarGenerator("apifiles");
 		this.img = generator.get(getWorld().getRegion(), getWorld().getRealm(), characters.toArray(new String[0]));
 	}
 

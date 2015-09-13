@@ -13,9 +13,4 @@ public class ApiSteps extends WowSteps {
 		super(world);
 	}
 
-	@Then("^the API was only called once$")
-	public void the_API_was_only_called_once() throws Throwable {
-		Assert.assertEquals(1, getWorld().getClient().getRemoteCallCount());
-	}
-
 }

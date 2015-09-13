@@ -67,8 +67,8 @@ public class AvatarImage {
         return region+"/"+realm+"/"+character;
     }
     
-    public File getFile(String rootDir) {
-        return Paths.get(rootDir + getKey()+".png").toFile();
+    public File getFile(String rootDir, String name) {
+        return Paths.get(rootDir+"/"+region+"/"+"img-"+name+"/"+realm+"/"+character+".png").toFile();
     }
 
     public BufferedImage getImg() throws ClientProtocolException, URISyntaxException, IOException {
