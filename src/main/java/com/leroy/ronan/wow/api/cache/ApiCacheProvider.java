@@ -49,8 +49,8 @@ public class ApiCacheProvider<T extends WowJson> {
                 .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .loader(k -> fromString.apply(this.load(k)))
                 .keyToFile(this::keyToFile)
-                .fromFile(f -> fromString.apply(this.fromFile(f)))
-                .toFile(this::toFile)
+                .fromFile(f -> fromString.apply(ApiUtils.fromFile(f)))
+                .toFile(ApiUtils::toFile)
                 .build();
 	}
 
@@ -66,15 +66,7 @@ public class ApiCacheProvider<T extends WowJson> {
         String data = null;
 		try {
 			URI uri = new URI("https", desc.getZone()+".api.battle.net", "/wow/"+desc.getType()+"/"+desc.getRealm()+"/"+desc.getName(), options, null);
-			URL url = uri.toURL();
-			URLConnection conn = url.openConnection();
-			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			data = "";
-			String inputLine;
-			while ((inputLine = br.readLine()) != null) {
-			    data += inputLine;
-			}
-			br.close();
+			data = ApiUtils.loadUri(uri);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
@@ -84,30 +76,5 @@ public class ApiCacheProvider<T extends WowJson> {
     private File keyToFile(String key){
     	ApiObjectDesc desc = ApiObjectDesc.of(key);
     	return new File(this.root+"/"+desc.getZone()+"/"+desc.getType()+"/"+desc.getRealm()+"/"+desc.getName()+".json");
-    }
-    
-    private String fromFile(File f){
-    	String res = null;
-    	try {
-			res = new String(Files.readAllBytes(f.toPath()), "utf-8");
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-		}
-    	return res;
-    }
-
-    private void toFile(File f, T t){
-		f.getParentFile().mkdirs();
-		if (f.exists()){
-			f.delete();
-		}
-		if (t != null){
-			try {
-				f.createNewFile();
-				Files.write(f.toPath(), t.getJson().getBytes("utf-8"));
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-		}
     }
 }

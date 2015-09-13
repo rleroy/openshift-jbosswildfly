@@ -1,7 +1,6 @@
 @wow
 Feature: Gathering auction data
 
-@ignore
 Scenario: Auction data
 Given region is "eu"
 Given realm name is "Sargeras"

@@ -6,7 +6,8 @@ import com.leroy.ronan.utils.cache.PersistedCache;
 import com.leroy.ronan.wow.api.ApiClient;
 import com.leroy.ronan.wow.api.ApiObjectDesc;
 import com.leroy.ronan.wow.api.ApiType;
-import com.leroy.ronan.wow.beans.WowAuction;
+import com.leroy.ronan.wow.beans.WowAuctions;
+import com.leroy.ronan.wow.beans.WowAuctionsData;
 import com.leroy.ronan.wow.beans.WowCharacter;
 import com.leroy.ronan.wow.beans.WowGuild;
 
@@ -16,13 +17,15 @@ public class ApiClientCached implements ApiClient {
 	
 	private PersistedCache<WowCharacter> characterCache;
 	private PersistedCache<WowGuild> guildCache;
-	private PersistedCache<WowAuction> auctionCache;
-	
+	private PersistedCache<WowAuctions> auctionCache;
+	private PersistedCache<WowAuctionsData> auctionDataCache;
+
 	public ApiClientCached(String locale, String apikey, String root){
 		characterCache = (new ApiCacheProvider<WowCharacter>(locale, apikey, root)).get("api-characters", s -> new WowCharacter(s));
 		guildCache = (new ApiCacheProvider<WowGuild>(locale, apikey, root)).get("api-guilds", s -> new WowGuild(s));
-		auctionCache = (new ApiCacheProvider<WowAuction>(locale, apikey, root)).get("api-auctions", s -> new WowAuction(s));
+		auctionCache = (new ApiCacheProvider<WowAuctions>(locale, apikey, root)).get("api-auctions", s -> new WowAuctions(s));
 		
+		auctionDataCache = new AuctionDataPersistedCache("api-actionsdata", root);
 	}
 	
 	@Override
@@ -36,7 +39,8 @@ public class ApiClientCached implements ApiClient {
 	}
 
 	@Override
-	public WowAuction getAuctions(String zone, String realm) {
-		return auctionCache.get(ApiObjectDesc.of(zone, ApiType.auction, "data", realm).toString()).getContent();
+	public WowAuctionsData getAuctions(String zone, String realm) {
+		WowAuctions auction = auctionCache.get(ApiObjectDesc.of(zone, ApiType.auction, "data", realm).toString()).getContent();
+		return auctionDataCache.get(auction.getUrl()).getContent();
 	}
 }

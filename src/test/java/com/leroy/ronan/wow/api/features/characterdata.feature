@@ -1,5 +1,5 @@
 @wow
-Feature: Gathering guild data
+Feature: Gathering character data
 
 Background:
 Given region is "eu"

@@ -23,8 +23,7 @@ public class PersistedCacheBuilder<T> {
     private Function<File, T> fromFile;
     private BiConsumer<File, T> toFile;
 
-    private boolean synchro = false;
-    private boolean asynchro = false;
+    private PersistedCacheType type = PersistedCacheType.SIMPLE;
     
     public PersistedCacheBuilder() {
         super();
@@ -81,24 +80,35 @@ public class PersistedCacheBuilder<T> {
     }
     
 	public PersistedCacheBuilder<T> synchro() {
-		this.synchro = true;
+		this.type = PersistedCacheType.SYNCHRONIZED;
 		return this;
 	}
 
 	public PersistedCacheBuilder<T> asynchro() {
-		this.asynchro = true;
+		this.type = PersistedCacheType.ASYNCHRONIZED;
 		return this;
 	}
 
-
+	public PersistedCacheBuilder<T> simple() {
+		this.type = PersistedCacheType.SIMPLE;
+		return this;
+	}
+	
     public PersistedCache<T> build() {
-    	if (asynchro) {
-    		return new AsynchronizedCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, timeToWaitResponse, timeToLiveIfNoResponse, keyToFile, fromFile, toFile);
-    	} else if (synchro){
-    		return new SynchronizedCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
-    	} else {
-    		return new SimpleCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
-    	}
+    	PersistedCache<T> res;
+		switch (type){
+		case ASYNCHRONIZED:
+			res = new AsynchronizedCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, timeToWaitResponse, timeToLiveIfNoResponse, keyToFile, fromFile, toFile);
+			break;
+		case SYNCHRONIZED:
+			res = new SynchronizedCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+			break;
+		case SIMPLE:
+		default:
+			res = new SimpleCache<T>(name, load, isExpired, timeToLiveAfterError, timeToLiveAfterSuccess, keyToFile, fromFile, toFile);
+			break;
+		}
+		return res;
     }
 
 

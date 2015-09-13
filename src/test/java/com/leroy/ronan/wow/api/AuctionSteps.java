@@ -4,14 +4,14 @@ import org.junit.Assert;
 
 import com.leroy.ronan.wow.World;
 import com.leroy.ronan.wow.WowSteps;
-import com.leroy.ronan.wow.beans.WowAuction;
+import com.leroy.ronan.wow.beans.WowAuctionsData;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class AuctionSteps extends WowSteps {
 
-	private WowAuction auctions;
+	private WowAuctionsData auctions;
 	
 	public AuctionSteps(World world) {
 		super(world);
