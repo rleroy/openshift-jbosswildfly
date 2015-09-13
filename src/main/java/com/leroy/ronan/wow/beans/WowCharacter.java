@@ -5,10 +5,14 @@ import org.json.simple.JSONValue;
 
 public class WowCharacter extends WowJson {
 
+	public static final int MAXLEVEL = 100;
+	
     private Long lastModified;
     private String name;
     private String realm;
     private String battlegroup;
+    
+    private Long level;
     
     private Long achievementPoints;
     
@@ -25,6 +29,7 @@ public class WowCharacter extends WowJson {
         realm = (String)obj.get("realm");
         battlegroup = (String)obj.get("battlegroup");
         achievementPoints = (Long)obj.get("achievementPoints");
+        level = (Long)obj.get("level");
         
         JSONObject items = (JSONObject)obj.get("items");
         if (items != null){
@@ -49,7 +54,11 @@ public class WowCharacter extends WowJson {
         return battlegroup;
     }
 
-    public Long getAverageItemLevel() {
+    public Long getLevel() {
+		return level;
+	}
+
+	public Long getAverageItemLevel() {
         return averageItemLevel;
     }
 

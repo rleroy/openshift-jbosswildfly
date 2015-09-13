@@ -19,7 +19,7 @@ public class ApiClientCached implements ApiClient {
 	private PersistedCache<WowGuild> guildCache;
 	private PersistedCache<WowAuctions> auctionCache;
 	private PersistedCache<WowAuctionsData> auctionDataCache;
-
+	
 	public ApiClientCached(String locale, String apikey, String root){
 		characterCache = (new ApiCacheProvider<WowCharacter>(locale, apikey, root)).get("api-characters", s -> new WowCharacter(s));
 		guildCache = (new ApiCacheProvider<WowGuild>(locale, apikey, root)).get("api-guilds", s -> new WowGuild(s));

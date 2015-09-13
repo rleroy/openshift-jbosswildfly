@@ -2,16 +2,15 @@ package com.leroy.ronan.wow.beans;
 
 public class WowAuctionsDataAuction {
 	
-    private long auc;
-    private long item;
+    private Long auc;
+    private Long item;
     private String owner;
     private String ownerRealm;
-    private long bid;
-    private long buyout;
-    private long quantity;
+    private Long bid;
+    private Long buyout;
+    private Long quantity;
     
-	public WowAuctionsDataAuction(long auc, long item, String owner, String ownerRealm, long bid, long buyout,
-			long quantity) {
+	public WowAuctionsDataAuction(Long auc, Long item, String owner, String ownerRealm, Long bid, Long buyout, Long quantity) {
 		super();
 		this.auc = auc;
 		this.item = item;
@@ -22,11 +21,11 @@ public class WowAuctionsDataAuction {
 		this.quantity = quantity;
 	}
 
-	public long getAuc() {
+	public Long getAuc() {
 		return auc;
 	}
 
-	public long getItem() {
+	public Long getItem() {
 		return item;
 	}
 
@@ -38,15 +37,15 @@ public class WowAuctionsDataAuction {
 		return ownerRealm;
 	}
 
-	public long getBid() {
+	public Long getBid() {
 		return bid;
 	}
 
-	public long getBuyout() {
+	public Long getBuyout() {
 		return buyout;
 	}
 
-	public long getQuantity() {
+	public Long getQuantity() {
 		return quantity;
 	}
 }

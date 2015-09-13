@@ -4,6 +4,7 @@ import com.leroy.ronan.wow.api.ApiClient;
 import com.leroy.ronan.wow.api.cache.ApiClientCached;
 import com.leroy.ronan.wow.beans.WowCharacter;
 import com.leroy.ronan.wow.beans.WowGuild;
+import com.leroy.ronan.wow.services.ServiceProvider;
 
 public class World {
 
@@ -19,7 +20,7 @@ public class World {
 	
 	public void setRegion(String region) {
 		this.region = region;
-		this.client = new ApiClientCached("en_GB", "8vkxyhwqkb787e47utga6r5djuw2unqt", "apifiles");
+		this.client = ServiceProvider.getApi("apifiles");
 	}
 	public String getRegion() {
 		return region;

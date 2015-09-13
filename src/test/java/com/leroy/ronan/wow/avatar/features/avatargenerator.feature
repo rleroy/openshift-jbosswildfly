@@ -1,3 +1,4 @@
+@avatar
 Feature: Generate an avatar from a character
 
 Scenario: Make a multi characters avatar
@@ -6,6 +7,7 @@ Given realm name is "Sargeras"
 Given I want character name "Snomead" in image
 Given I want character name "Heavymousse" in image
 Given I want character name "Jül" in image
+Given I want character name "Pamyniste" in image
  When I get the avatar
  Then an avatar is available
 

@@ -14,14 +14,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.leroy.ronan.utils.cache.CacheResponse;
+import com.leroy.ronan.wow.api.ApiClient;
+import com.leroy.ronan.wow.api.cache.ApiClientCached;
 import com.leroy.ronan.wow.avatar.AvatarGenerator;
+import com.leroy.ronan.wow.services.ServiceProvider;
 
 @WebServlet("/avatar/*")
 public class AvatarServlet extends HttpServlet {
     
 	private static final long serialVersionUID = 1L;
-     
-	private static AvatarGenerator generator = new AvatarGenerator(System.getenv("OPENSHIFT_DATA_DIR")+"apifiles/img/");
+    
+	private static final String root = System.getenv("OPENSHIFT_DATA_DIR")+"apifiles";
+	private static AvatarGenerator generator = ServiceProvider.getAvatar(root);
 	
     public AvatarServlet() {
         super();

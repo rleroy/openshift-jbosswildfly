@@ -19,6 +19,8 @@ import com.leroy.ronan.utils.cache.CacheResponse;
 import com.leroy.ronan.utils.cache.PersistedCache;
 import com.leroy.ronan.utils.cache.PersistedCacheBuilder;
 import com.leroy.ronan.utils.img.ImageCombinator;
+import com.leroy.ronan.wow.api.ApiClient;
+import com.leroy.ronan.wow.beans.WowCharacter;
 
 public class AvatarGenerator {
 
@@ -27,11 +29,13 @@ public class AvatarGenerator {
     private PersistedCache<BufferedImage> cacheSingleImages;
     private PersistedCache<BufferedImage> cacheMultiImages;
     private String cacheDir;
+    private ApiClient api;
     
-    public AvatarGenerator(String cacheDir){
+    public AvatarGenerator(String root, ApiClient api){
         super();
         PersistedCacheBuilder<BufferedImage> builder = new PersistedCacheBuilder<>();
-        this.cacheDir = cacheDir;
+        this.cacheDir = root;
+        this.api = api;
         
         cacheSingleImages = builder
                 .asynchro()
@@ -61,20 +65,25 @@ public class AvatarGenerator {
                 ;
     }
     
-    public CacheResponse<BufferedImage> get(String region, String realm, String[] characters){
-        return cacheMultiImages.get(region+"/"+realm+"/"+StringUtils.join(characters, "-"));
+    public CacheResponse<BufferedImage> get(String zone, String realm, String[] characters){
+        return cacheMultiImages.get(zone+"/"+realm+"/"+StringUtils.join(characters, "-"));
     }
 
     private BufferedImage loadSingle(String key){
         String[] keyTab = key.split("/");
-        String region = keyTab[0];
+        String zone = keyTab[0];
         String realm = keyTab[1];
-        String character = keyTab[2];
+        String name = keyTab[2];
 
-        AvatarImage img = new AvatarImage(region, realm, character);
+        AvatarImage img = new AvatarImage(zone, realm, name);
+        WowCharacter character = api.getCharacter(zone, realm, name);
+        boolean useIlvl = true;
+        if (character.getLevel() <= WowCharacter.MAXLEVEL) {;
+        	useIlvl = false;
+    	}
         BufferedImage res = null;
         try {
-            res = img.getImg();
+            res = img.getImg(useIlvl);
         } catch (URISyntaxException | IOException e) {
             log.error(e.getMessage(), e);
         }
@@ -83,7 +92,7 @@ public class AvatarGenerator {
     
     private BufferedImage loadMulti(String key) {
         String[] keyTab = key.split("/");
-        String region = keyTab[0];
+        String zone = keyTab[0];
         String realm = keyTab[1];
         String[] characters = keyTab[2].split("-");
         BufferedImage res = null;
@@ -91,7 +100,7 @@ public class AvatarGenerator {
         	res = cacheSingleImages.get(key).getContent();
         }else{
 	        List<CompletableFuture<CacheResponse<BufferedImage>>> futures = Stream.of(characters)
-	        	.map(c -> CompletableFuture.supplyAsync(() -> cacheSingleImages.get(region+"/"+realm+"/"+c)))
+	        	.map(c -> CompletableFuture.supplyAsync(() -> cacheSingleImages.get(zone+"/"+realm+"/"+c)))
 	        	.collect(Collectors.toList());
 	        List<CacheResponse<BufferedImage>> responses = futures.stream()
 	        	.map(f -> {

@@ -10,6 +10,7 @@ import com.leroy.ronan.utils.cache.CacheResponse;
 import com.leroy.ronan.wow.World;
 import com.leroy.ronan.wow.WowSteps;
 import com.leroy.ronan.wow.avatar.AvatarGenerator;
+import com.leroy.ronan.wow.services.ServiceProvider;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -34,7 +35,7 @@ public class AvatarGeneratorSteps extends WowSteps{
 	
 	@When("^I get the avatar$")
 	public void i_get_the_avatar() throws Throwable {
-		AvatarGenerator generator = new AvatarGenerator("apifiles");
+		AvatarGenerator generator = ServiceProvider.getAvatar("apifiles");
 		this.img = generator.get(getWorld().getRegion(), getWorld().getRealm(), characters.toArray(new String[0]));
 	}
 

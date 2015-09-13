@@ -34,25 +34,25 @@ public class AvatarImage {
 
     private static final Logger log = Logger.getLogger(new Object() { }.getClass().getEnclosingClass());
 
-    private String region;
+    private String zone;
     private String realm;
     private String character;
 
     public AvatarImage(String key){
         String[] keyTab = key.split("/");
-        this.region = keyTab[0];
+        this.zone = keyTab[0];
         this.realm = keyTab[1];
         this.character = keyTab[2];
     }
 
-    public AvatarImage(String region, String realm, String character) {
-        this.region = region;
+    public AvatarImage(String zone, String realm, String character) {
+        this.zone = zone;
         this.realm = realm;
         this.character = character;
     }
 
-    public String getRegion() {
-        return region;
+    public String getZone() {
+        return zone;
     }
 
     public String getRealm() {
@@ -64,28 +64,28 @@ public class AvatarImage {
     }
     
     public String getKey(){
-        return region+"/"+realm+"/"+character;
+        return zone+"/"+realm+"/"+character;
     }
     
     public File getFile(String rootDir, String name) {
-        return Paths.get(rootDir+"/"+region+"/"+"img-"+name+"/"+realm+"/"+character+".png").toFile();
+        return Paths.get(rootDir+"/"+zone+"/"+"img-"+name+"/"+realm+"/"+character+".png").toFile();
     }
 
-    public BufferedImage getImg() throws ClientProtocolException, URISyntaxException, IOException {
-        log.debug("getImg("+region+","+realm+","+character+")");
+    public BufferedImage getImg(boolean useIlvl) throws ClientProtocolException, URISyntaxException, IOException {
+        log.debug("getImg("+zone+","+realm+","+character+")");
 
         BufferedImage res = null;
         BasicCookieStore cookieStore = new BasicCookieStore();
         HttpClientBuilder builder = HttpClients.custom().setDefaultCookieStore(cookieStore);
 
         try (CloseableHttpClient httpclient = builder.build()){
-            this.get(cookieStore, httpclient, "http://www.best-signatures.com/api/?region="+region+"&realm="+realm+"&char="+character+"&type=Sign9&preview=1&c1=class");
+            this.get(cookieStore, httpclient, "http://www.best-signatures.com/api/?region="+zone+"&realm="+realm+"&char="+character+"&type=Sign9&preview=1&c1=class");
 
             this.get(cookieStore, httpclient, "http://www.best-signatures.com/wow/");
 
             this.post(httpclient, cookieStore, 
                     "http://www.best-signatures.com/ajax/generator/load/", 
-                    new BasicNameValuePair("region", region),
+                    new BasicNameValuePair("region", zone),
                     new BasicNameValuePair("server", realm),
                     new BasicNameValuePair("char", character), // Multi : StringUtils.join(characters, ","))
                     new BasicNameValuePair("lang", "en_GB")
@@ -102,7 +102,7 @@ public class AvatarImage {
                     new BasicNameValuePair("style[other][name]", "1"),
                     new BasicNameValuePair("style[other][classcolor]", "1"),
                     new BasicNameValuePair("style[other][race]", "0"),
-                    new BasicNameValuePair("style[other][ilvl]", "1")
+                    new BasicNameValuePair("style[other][ilvl]", useIlvl?"1":"0")
                     );
             String json = this.post(httpclient, cookieStore, 
                     "http://www.best-signatures.com/ajax/generator/save/", 
