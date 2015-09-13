@@ -38,6 +38,14 @@ public class AvatarServlet extends HttpServlet {
 		String[] params = URLDecoder.decode(uri, "UTF-8").replace(".png", "").split("/");
 		
 		CacheResponse<BufferedImage> img = generator.get(params[2], params[3], params[4].split("-"));
+		if (img.getContent() == null) {
+			try {
+				Thread.sleep(TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS));
+			} catch(Exception e){
+				log.error(e.getMessage(), e);
+			}
+			img = generator.get(params[2], params[3], params[4].split("-"));
+		}
 
 		long now = System.currentTimeMillis();
 		response.addHeader("Cache-Control", "max-age=" + TimeUnit.SECONDS.convert(img.getTimeToLive(), TimeUnit.MILLISECONDS));
