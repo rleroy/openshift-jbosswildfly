@@ -10,12 +10,12 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-public class WowGuild {
+public class WowGuild extends WowJson{
 
     private Map<Long, Set<WowGuildMember>> members;
     
     public WowGuild(String json) {
-        super();
+        super(json);
         this.members = new HashMap<Long, Set<WowGuildMember>>();
         JSONObject obj = (JSONObject)JSONValue.parse(json);
         Object members = obj.get("members");

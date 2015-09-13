@@ -19,7 +19,7 @@ public class AuctionSteps extends WowSteps {
 	
 	@When("^I get the auctions$")
 	public void i_get_the_auctions() throws Throwable {
-		auctions = getWorld().getClient().getAuctions(getWorld().getRealm());
+		auctions = getWorld().getClient().getAuctions(getWorld().getRegion(), getWorld().getRealm());
 	}
 
 	@Then("^I should get the list of auctions$")

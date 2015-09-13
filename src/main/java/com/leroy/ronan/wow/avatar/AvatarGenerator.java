@@ -54,7 +54,7 @@ public class AvatarGenerator {
                 .fromFile(this::fromFile)
                 .toFile(this::toFile)
                 .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
-                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
+                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
                 .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS))
                 .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .build()
@@ -88,7 +88,7 @@ public class AvatarGenerator {
         String[] characters = keyTab[2].split("-");
         BufferedImage res = null;
         if (characters.length == 1) {
-        	res = loadSingle(key);
+        	res = cacheSingleImages.get(key).getContent();
         }else{
 	        List<CompletableFuture<CacheResponse<BufferedImage>>> futures = Stream.of(characters)
 	        	.map(c -> CompletableFuture.supplyAsync(() -> cacheSingleImages.get(region+"/"+realm+"/"+c)))

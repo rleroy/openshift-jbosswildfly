@@ -2,7 +2,6 @@ package com.leroy.ronan.wow;
 
 import com.leroy.ronan.wow.api.ApiClient;
 import com.leroy.ronan.wow.api.cache.ApiClientCached;
-import com.leroy.ronan.wow.api.service.ApiClientImpl;
 import com.leroy.ronan.wow.beans.WowCharacter;
 import com.leroy.ronan.wow.beans.WowGuild;
 
@@ -20,8 +19,7 @@ public class World {
 	
 	public void setRegion(String region) {
 		this.region = region;
-		this.client = new ApiClientCached(region, "en_GB", "8vkxyhwqkb787e47utga6r5djuw2unqt", "apifiles");
-		//this.client = new ApiClientImpl(region);
+		this.client = new ApiClientCached("en_GB", "8vkxyhwqkb787e47utga6r5djuw2unqt", "apifiles");
 	}
 	public String getRegion() {
 		return region;

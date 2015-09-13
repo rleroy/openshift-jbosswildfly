@@ -23,7 +23,7 @@ public class CharacterDataSteps extends WowSteps {
 	
 	@When("^I get the character data$")
 	public void i_get_the_character_data() throws Throwable {
-		getWorld().setCharacter(getWorld().getClient().getCharacter(getWorld().getRealm(), getWorld().getCharacterName()));
+		getWorld().setCharacter(getWorld().getClient().getCharacter(getWorld().getRegion(), getWorld().getRealm(), getWorld().getCharacterName()));
 	}
 
 	@Then("^I am able to know the ilvl of this character$")
@@ -38,7 +38,7 @@ public class CharacterDataSteps extends WowSteps {
 	
 	@Then("^I am able to know this character is a reroll of \"(.*?)\" in realm \"(.*?)\"$")
 	public void i_am_able_to_know_this_character_is_a_reroll_of(String otherName, String otherRealm) throws Throwable {
-		WowCharacter otherCharacter = getWorld().getClient().getCharacter(otherRealm, otherName);
+		WowCharacter otherCharacter = getWorld().getClient().getCharacter(getWorld().getRegion(), otherRealm, otherName);
 		Assert.assertEquals(getWorld().getCharacter().getAchievementPoints(), otherCharacter.getAchievementPoints());
 	}
 

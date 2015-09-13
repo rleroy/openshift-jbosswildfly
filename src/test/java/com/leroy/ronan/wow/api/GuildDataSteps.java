@@ -22,7 +22,7 @@ public class GuildDataSteps extends WowSteps {
 
 	@When("^I get the member list$")
 	public void i_get_the_member_list() throws Throwable {
-		getWorld().setGuild(getWorld().getClient().getGuild(getWorld().getRealm(), getWorld().getGuildName()));
+		getWorld().setGuild(getWorld().getClient().getGuild(getWorld().getRegion(), getWorld().getRealm(), getWorld().getGuildName()));
 	}
 
 	@Then("^a character with name \"(.*?)\" is in the list$")

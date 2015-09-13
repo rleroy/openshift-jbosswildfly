@@ -3,7 +3,7 @@ package com.leroy.ronan.wow.beans;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-public class WowCharacter {
+public class WowCharacter extends WowJson {
 
     private Long lastModified;
     private String name;
@@ -16,7 +16,7 @@ public class WowCharacter {
     private Long averageItemLevelEquipped;
     
     public WowCharacter(String json) {
-        super();
+        super(json);
         
         JSONObject obj = (JSONObject)JSONValue.parse(json);
 
