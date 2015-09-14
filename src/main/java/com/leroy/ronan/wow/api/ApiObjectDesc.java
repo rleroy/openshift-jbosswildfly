@@ -28,8 +28,13 @@ public class ApiObjectDesc {
 		String[] parts = desc.split("/");
 		this.zone = parts[0];
 		this.type = ApiType.valueOf(parts[1]);
-		this.realm = parts[2];
-		this.name = parts[3];
+		if (parts.length <= 3){
+			this.realm = null;
+			this.name = parts[2];
+		} else { 
+			this.realm = parts[2];
+			this.name = parts[3];
+		}
 	}
 	
 	public String getZone() {
@@ -47,6 +52,11 @@ public class ApiObjectDesc {
 
 	@Override
 	public String toString() {
-		return this.zone+"/"+this.type+"/"+this.realm+"/"+this.name;
+		String res = this.zone+"/"+this.type+"/";
+		if (this.realm != null) {
+			res += this.realm+"/";
+		}
+		res += this.name;
+		return res;
 	}
 }

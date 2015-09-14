@@ -9,6 +9,7 @@ public enum ApiType {
 	character("items"),
 	auction,
 	auctiontype,
+	item,
 	;
 
     private Set<String> fields;

@@ -23,7 +23,7 @@ public class AuctionDataPersistedCache extends AbstractPersistedCache<WowAuction
 		super(PersistedCacheType.ASYNCHRONIZED,
 			  name,
 			  TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES),
-			  TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS),
+			  TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS),
 			  TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES),
 			  TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
 		this.root = root;

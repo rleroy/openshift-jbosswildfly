@@ -10,6 +10,7 @@ import com.leroy.ronan.wow.beans.WowAuctions;
 import com.leroy.ronan.wow.beans.WowAuctionsData;
 import com.leroy.ronan.wow.beans.WowCharacter;
 import com.leroy.ronan.wow.beans.WowGuild;
+import com.leroy.ronan.wow.beans.WowItem;
 
 public class ApiClientCached implements ApiClient {
 
@@ -19,18 +20,26 @@ public class ApiClientCached implements ApiClient {
 	private PersistedCache<WowGuild> guildCache;
 	private PersistedCache<WowAuctions> auctionCache;
 	private PersistedCache<WowAuctionsData> auctionDataCache;
+	private PersistedCache<WowItem> itemDataCache;
 	
 	public ApiClientCached(String locale, String apikey, String root){
 		characterCache = (new ApiCacheProvider<WowCharacter>(locale, apikey, root)).get("api-characters", s -> new WowCharacter(s));
 		guildCache = (new ApiCacheProvider<WowGuild>(locale, apikey, root)).get("api-guilds", s -> new WowGuild(s));
 		auctionCache = (new ApiCacheProvider<WowAuctions>(locale, apikey, root)).get("api-auctions", s -> new WowAuctions(s));
+		itemDataCache = (new ApiCacheProvider<WowItem>(locale, apikey, root)).get("api-item", s -> new WowItem(s));
 		
 		auctionDataCache = new AuctionDataPersistedCache("api-actionsdata", root);
 	}
 	
 	@Override
 	public WowCharacter getCharacter(String zone, String realm, String name) {
-		return characterCache.get(ApiObjectDesc.of(zone, ApiType.character, realm, name).toString()).getContent();
+		WowCharacter res = null;
+		try{
+			res = characterCache.get(ApiObjectDesc.of(zone, ApiType.character, realm, name).toString()).getContent();
+		}catch(Exception e){
+			log.error(e.getMessage(), e);
+		}
+		return res;
 	}
 
 	@Override
@@ -42,5 +51,10 @@ public class ApiClientCached implements ApiClient {
 	public WowAuctionsData getAuctions(String zone, String realm) {
 		WowAuctions auction = auctionCache.get(ApiObjectDesc.of(zone, ApiType.auction, "data", realm).toString()).getContent();
 		return auctionDataCache.get(auction.getUrl()).getContent();
+	}
+
+	@Override
+	public WowItem getItem(String zone, Long id) {
+		return itemDataCache.get(ApiObjectDesc.of(zone, ApiType.item, null, String.valueOf(id)).toString()).getContent();
 	}
 }

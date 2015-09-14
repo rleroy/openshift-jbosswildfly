@@ -1,13 +1,7 @@
 package com.leroy.ronan.wow.api.cache;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +59,12 @@ public class ApiCacheProvider<T extends WowJson> {
         String options = String.join("&", optionsList); 
         String data = null;
 		try {
-			URI uri = new URI("https", desc.getZone()+".api.battle.net", "/wow/"+desc.getType()+"/"+desc.getRealm()+"/"+desc.getName(), options, null);
+			String path = "/wow/"+desc.getType();
+			if (desc.getRealm() != null) {
+				path += "/"+desc.getRealm();
+			}
+			path += "/"+desc.getName();
+			URI uri = new URI("https", desc.getZone()+".api.battle.net", path, options, null);
 			data = ApiUtils.loadUri(uri);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -75,6 +74,6 @@ public class ApiCacheProvider<T extends WowJson> {
 
     private File keyToFile(String key){
     	ApiObjectDesc desc = ApiObjectDesc.of(key);
-    	return new File(this.root+"/"+desc.getZone()+"/"+desc.getType()+"/"+desc.getRealm()+"/"+desc.getName()+".json");
+    	return new File(this.root+"/"+desc.toString()+".json");
     }
 }

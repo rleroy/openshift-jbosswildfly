@@ -1,5 +1,7 @@
 package com.leroy.ronan.wow.api;
 
+import java.util.Comparator;
+
 import org.junit.Assert;
 
 import com.leroy.ronan.wow.World;
@@ -28,6 +30,14 @@ public class GuildDataSteps extends WowSteps {
 	@Then("^a character with name \"(.*?)\" is in the list$")
 	public void a_character_with_name_is_in_the_list(String name) throws Throwable {
 		Assert.assertEquals(1, getWorld().getGuild().getMembers().stream().filter(m -> m.getName().equals(name)).count());
+		// Download all members
+		/*
+		getWorld().getGuild().getMembers().stream()
+			.map(m -> getWorld().getClient().getCharacter(getWorld().getRegion(), m.getRealm(), m.getName()))
+			.filter(c-> c != null)
+			.sorted((c1, c2) -> c1.getAverageItemLevelEquipped().compareTo(c2.getAverageItemLevelEquipped()))
+			.forEach(c -> System.out.println(c.getName()+"("+c.getAverageItemLevelEquipped()+")"));
+			*/
 	}
 
 }
