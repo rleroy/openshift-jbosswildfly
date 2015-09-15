@@ -34,11 +34,15 @@ public class ApiCacheProvider<T extends WowJson> {
 	}
 
 	public PersistedCache<T> get(String name, Function<String, T> fromString) {
+		return get(name, fromString, TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS));
+	}
+
+	public PersistedCache<T> get(String name, Function<String, T> fromString, long ttl) {
 		return builder
                 .asynchro()
                 .name(name)
                 .timeToLiveAfterError(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES))
-                .timeToLiveAfterSuccess(TimeUnit.MILLISECONDS.convert(6, TimeUnit.HOURS))
+                .timeToLiveAfterSuccess(ttl)
                 .timeToWaitResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .timeToLiveIfNoResponse(TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES))
                 .loader(k -> fromString.apply(this.load(k)))

@@ -10,6 +10,7 @@ import com.leroy.ronan.wow.WowSteps;
 import com.leroy.ronan.wow.beans.WowAuctionsData;
 import com.leroy.ronan.wow.beans.WowAuctionsDataAuction;
 import com.leroy.ronan.wow.beans.WowItem;
+import com.leroy.ronan.wow.services.AuctionUtils;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -50,6 +51,16 @@ public class AuctionSteps extends WowSteps {
 				.map(a -> getWorld().getClient().getItem(getWorld().getRegion(), a.getItem()))
 				.forEach(i -> System.out.println(i.getName()));
 				*/
+	}
+
+	@Then("^I can analyse prices$")
+	public void i_can_analyse_prices() throws Throwable {
+		List<WowAuctionsDataAuction> auctions = this.auctions.getAuctions().stream().parallel()
+			.filter(a -> AuctionUtils.isFelblight(a, getWorld().getClient().getItem(getWorld().getRegion(), a.getItem())))
+			.collect(Collectors.toList());
+		auctions.stream()
+			.sorted((a1, a2) -> a1.getBuyout().compareTo(a2.getBuyout()))
+			.forEach(a -> System.out.println(AuctionUtils.getDisplayString(a, getWorld().getClient().getItem(getWorld().getRegion(), a.getItem()))));
 	}
 
 

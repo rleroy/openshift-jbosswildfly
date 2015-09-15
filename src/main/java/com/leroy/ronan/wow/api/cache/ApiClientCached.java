@@ -1,5 +1,7 @@
 package com.leroy.ronan.wow.api.cache;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 
 import com.leroy.ronan.utils.cache.PersistedCache;
@@ -26,7 +28,7 @@ public class ApiClientCached implements ApiClient {
 		characterCache = (new ApiCacheProvider<WowCharacter>(locale, apikey, root)).get("api-characters", s -> new WowCharacter(s));
 		guildCache = (new ApiCacheProvider<WowGuild>(locale, apikey, root)).get("api-guilds", s -> new WowGuild(s));
 		auctionCache = (new ApiCacheProvider<WowAuctions>(locale, apikey, root)).get("api-auctions", s -> new WowAuctions(s));
-		itemDataCache = (new ApiCacheProvider<WowItem>(locale, apikey, root)).get("api-item", s -> new WowItem(s));
+		itemDataCache = (new ApiCacheProvider<WowItem>(locale, apikey, root)).get("api-item", s -> new WowItem(s), TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS));
 		
 		auctionDataCache = new AuctionDataPersistedCache("api-actionsdata", root);
 	}
