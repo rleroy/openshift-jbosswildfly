@@ -12,6 +12,7 @@ import com.leroy.ronan.wow.beans.WowAuctions;
 import com.leroy.ronan.wow.beans.WowAuctionsData;
 import com.leroy.ronan.wow.beans.WowCharacter;
 import com.leroy.ronan.wow.beans.WowGuild;
+import com.leroy.ronan.wow.beans.WowHeadItem;
 import com.leroy.ronan.wow.beans.WowItem;
 
 public class ApiClientCached implements ApiClient {
@@ -23,6 +24,7 @@ public class ApiClientCached implements ApiClient {
 	private PersistedCache<WowAuctions> auctionCache;
 	private PersistedCache<WowAuctionsData> auctionDataCache;
 	private PersistedCache<WowItem> itemDataCache;
+	private PersistedCache<WowHeadItem> wowheadItemCache;
 	
 	public ApiClientCached(String locale, String apikey, String root){
 		characterCache = (new ApiCacheProvider<WowCharacter>(locale, apikey, root)).get("api-characters", s -> new WowCharacter(s));
@@ -31,6 +33,8 @@ public class ApiClientCached implements ApiClient {
 		itemDataCache = (new ApiCacheProvider<WowItem>(locale, apikey, root)).get("api-item", s -> new WowItem(s), TimeUnit.MILLISECONDS.convert(365, TimeUnit.DAYS));
 		
 		auctionDataCache = new AuctionDataPersistedCache("api-actionsdata", root);
+		
+		wowheadItemCache = new WowHeadItemPersistedCache("wowhead-item", root);
 	}
 	
 	@Override
@@ -59,4 +63,12 @@ public class ApiClientCached implements ApiClient {
 	public WowItem getItem(String zone, Long id) {
 		return itemDataCache.get(ApiObjectDesc.of(zone, ApiType.item, null, String.valueOf(id)).toString()).getContent();
 	}
+	
+	@Override
+	public WowHeadItem getWowHeadItem(Long id) {
+		return wowheadItemCache.get(String.valueOf(id)).getContent();
+	}
+	
+	
+
 }

@@ -9,23 +9,47 @@ import com.leroy.ronan.wow.World;
 import com.leroy.ronan.wow.WowSteps;
 import com.leroy.ronan.wow.beans.WowAuctionsData;
 import com.leroy.ronan.wow.beans.WowAuctionsDataAuction;
+import com.leroy.ronan.wow.beans.WowHeadItem;
 import com.leroy.ronan.wow.beans.WowItem;
-import com.leroy.ronan.wow.services.AuctionUtils;
+import com.leroy.ronan.wow.craft.CraftingReagents;
+import com.leroy.ronan.wow.services.AuctionAnalyser;
+import com.leroy.ronan.wow.services.NotCraftableException;
+import com.leroy.ronan.wow.services.PriceFormater;
 
+import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class AuctionSteps extends WowSteps {
 
+	private long id;
+	private String name;
+	
 	private WowAuctionsData auctions;
+	private WowItem item;
+	private WowHeadItem wowheadItem;
+	
+	private Exception exception;
 	
 	public AuctionSteps(World world) {
 		super(world);
 	}
-	
+
+	@Given("^item is (\\d+) / \"(.*?)\"$")
+	public void item_is(long id, String name) throws Throwable {
+		this.id = id;
+		this.name = name;
+	}
+
 	@When("^I get the auctions$")
 	public void i_get_the_auctions() throws Throwable {
 		auctions = getWorld().getClient().getAuctions(getWorld().getRegion(), getWorld().getRealm());
+	}
+
+	@When("^I get the reagents of this item$")
+	public void i_get_the_reagents_of_this_item() throws Throwable {
+		item = getWorld().getClient().getItem(getWorld().getRegion(), this.id);
+		wowheadItem = getWorld().getClient().getWowHeadItem(this.id);
 	}
 
 	@Then("^I should get the list of auctions$")
@@ -44,24 +68,34 @@ public class AuctionSteps extends WowSteps {
 			WowItem item = getWorld().getClient().getItem(getWorld().getRegion(), cur.getItem());
 			System.out.println(item.getName());
 		}
-		// Print all items.
-		/*
-		this.auctions.getAuctions().stream()
-				.parallel()
-				.map(a -> getWorld().getClient().getItem(getWorld().getRegion(), a.getItem()))
-				.forEach(i -> System.out.println(i.getName()));
-				*/
 	}
 
-	@Then("^I can analyse prices$")
-	public void i_can_analyse_prices() throws Throwable {
-		List<WowAuctionsDataAuction> auctions = this.auctions.getAuctions().stream().parallel()
-			.filter(a -> AuctionUtils.isFelblight(a, getWorld().getClient().getItem(getWorld().getRegion(), a.getItem())))
-			.collect(Collectors.toList());
-		auctions.stream()
-			.sorted((a1, a2) -> a1.getBuyout().compareTo(a2.getBuyout()))
-			.forEach(a -> System.out.println(AuctionUtils.getDisplayString(a, getWorld().getClient().getItem(getWorld().getRegion(), a.getItem()))));
+	@Then("^I can analyse its cost$")
+	public void i_can_analyse_its_cost() throws Throwable {
+		AuctionAnalyser analyser = new AuctionAnalyser(auctions, id -> getWorld().getClient().getWowHeadItem(id));
+		wowheadItem.getCreatedBy().stream()
+			.forEach(spell -> System.out.println("Spell:"+spell.getName()));
+		
+		System.out.println("sellprice   :"+PriceFormater.formatPrice(analyser.getSellPrice(CraftingReagents.felblight.getId())));
+		System.out.println("buyprice   1:"+PriceFormater.formatPrice(analyser.getBuyPrice(CraftingReagents.felblight.getId(),   1)));
+		System.out.println("buyprice  10:"+PriceFormater.formatPrice(analyser.getBuyPrice(CraftingReagents.felblight.getId(),  10)));
+		System.out.println("buyprice  50:"+PriceFormater.formatPrice(analyser.getBuyPrice(CraftingReagents.felblight.getId(),  50)));
+		System.out.println("buyprice 100:"+PriceFormater.formatPrice(analyser.getBuyPrice(CraftingReagents.felblight.getId(), 100)));
+		System.out.println("buyprice 500:"+PriceFormater.formatPrice(analyser.getBuyPrice(CraftingReagents.felblight.getId(), 500)));
+	}
+	
+	@When("^I get the crafting price$")
+	public void i_get_the_crafting_price() throws Throwable {
+		AuctionAnalyser analyser = new AuctionAnalyser(auctions, id -> getWorld().getClient().getWowHeadItem(id));
+		try {
+			analyser.getCraftingAnalysis(this.id);
+		} catch (Exception e) {
+			exception = e;
+		}
 	}
 
-
+	@Then("^a not craftable exception is thrown$")
+	public void a_not_craftable_exception_is_thrown() throws Throwable {
+		Assert.assertEquals(NotCraftableException.class, exception.getClass());
+	}
 }
