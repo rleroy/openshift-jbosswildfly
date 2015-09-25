@@ -29,8 +29,6 @@ public class AuctionSteps extends WowSteps {
 	private WowItem item;
 	private WowHeadItem wowheadItem;
 	
-	private Exception exception;
-	
 	public AuctionSteps(World world) {
 		super(world);
 	}
@@ -50,6 +48,12 @@ public class AuctionSteps extends WowSteps {
 	public void i_get_the_reagents_of_this_item() throws Throwable {
 		item = getWorld().getClient().getItem(getWorld().getRegion(), this.id);
 		wowheadItem = getWorld().getClient().getWowHeadItem(this.id);
+	}
+
+	@When("^I get the crafting price$")
+	public void i_get_the_crafting_price() throws Throwable {
+		AuctionAnalyser analyser = new AuctionAnalyser(auctions, id -> getWorld().getClient().getWowHeadItem(id));
+		analyser.getCraftingAnalysis(this.id);
 	}
 
 	@Then("^I should get the list of auctions$")
@@ -84,18 +88,4 @@ public class AuctionSteps extends WowSteps {
 		System.out.println("buyprice 500:"+PriceFormater.formatPrice(analyser.getBuyPrice(CraftingReagents.felblight.getId(), 500)));
 	}
 	
-	@When("^I get the crafting price$")
-	public void i_get_the_crafting_price() throws Throwable {
-		AuctionAnalyser analyser = new AuctionAnalyser(auctions, id -> getWorld().getClient().getWowHeadItem(id));
-		try {
-			analyser.getCraftingAnalysis(this.id);
-		} catch (Exception e) {
-			exception = e;
-		}
-	}
-
-	@Then("^a not craftable exception is thrown$")
-	public void a_not_craftable_exception_is_thrown() throws Throwable {
-		Assert.assertEquals(NotCraftableException.class, exception.getClass());
-	}
 }

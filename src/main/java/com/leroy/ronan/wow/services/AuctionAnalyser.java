@@ -10,6 +10,7 @@ import com.leroy.ronan.wow.beans.WowHeadItem;
 import com.leroy.ronan.wow.beans.WowHeadReagent;
 import com.leroy.ronan.wow.beans.WowHeadSpell;
 import com.leroy.ronan.wow.craft.CraftingAnalysis;
+import com.leroy.ronan.wow.craft.Recipe;
 import com.leroy.ronan.wow.services.gathering.GatheringBuy;
 import com.leroy.ronan.wow.services.gathering.GatheringCannot;
 import com.leroy.ronan.wow.services.gathering.GatheringMethod;
@@ -33,13 +34,13 @@ public class AuctionAnalyser {
 		return minprice*99/100;
 	}
 
-	public long getBuyPrice(long id, int quantity) {
+	public Long getBuyPrice(long id, int quantity) {
 		List<WowAuctionsDataAuction> list = this.auctions.getAuctions().stream().parallel()
 			.filter(a -> a.getItem().equals(id))
 			.collect(Collectors.toList());
 		list.sort((a1, a2) -> a1.getBuyout().compareTo(a2.getBuyout()));
 		int count = 0;
-		long res = 0;
+		Long res = 0l;
 		for (WowAuctionsDataAuction cur : list) {
 			count += cur.getQuantity();
 			res += cur.getBuyout();
@@ -48,7 +49,7 @@ public class AuctionAnalyser {
 			}
 		}
 		if (count < quantity) {
-			throw new IllegalArgumentException("Cannot buy more than "+count+" items.");
+			res = null;
 		}
 		return res;
 	}
@@ -56,17 +57,17 @@ public class AuctionAnalyser {
 	public CraftingAnalysis getCraftingAnalysis(long id) throws NotCraftableException {
 		WowHeadItem item = wowhead.apply(id);
 		CraftingAnalysis res;
-		if (item.getCreatedBy().size() == 0 ){
-			res = new CraftingAnalysis(0l, null);
-		} else {
+		
+		Long buyPrice = getBuyPrice(id, 1);
+		Recipe recipe = null;
+		if (item.getCreatedBy().size() > 0 ){
 			for (WowHeadSpell s : item.getCreatedBy()) {
 				for (WowHeadReagent r : s.getReagents()) {
 					WowHeadItem curItem = wowhead.apply(r.getId());
 				}
 			}
-			// TODO 
-			res = new CraftingAnalysis(0l, null);
 		}
+		res = new CraftingAnalysis(buyPrice, recipe);
 		return res;
 	}
 	

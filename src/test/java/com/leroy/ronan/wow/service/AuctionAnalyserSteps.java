@@ -25,8 +25,7 @@ public class AuctionAnalyserSteps {
 	private WowItem item;
 	private Function<Long, WowHeadItem> wowhead;
 	
-	private long price;
-	private Exception e;
+	private Long price;
 	private CraftingAnalysis analysis;
 
 	@Given("^there is nothing to sell$")
@@ -83,12 +82,8 @@ public class AuctionAnalyserSteps {
 	
 	@When("^I want to buy (\\d+) of this item$")
 	public void i_want_to_buy_of_this_item(int qty) throws Throwable {
-		try {
-			AuctionAnalyser analyser = buildAnalyser();
-			price = analyser.getBuyPrice(item.getId(), qty);
-		}catch(Exception e){
-			this.e = e;
-		}
+		AuctionAnalyser analyser = buildAnalyser();
+		price = analyser.getBuyPrice(item.getId(), qty);
 	}
 	
 	@When("^I want to analyse the price of this item$")
@@ -105,12 +100,11 @@ public class AuctionAnalyserSteps {
 
 	@Then("^it should be impossible$")
 	public void it_should_be_impossible() throws Throwable {
-		Assert.assertNotNull(this.e);
-		Assert.assertEquals(IllegalArgumentException.class, this.e.getClass());
+		Assert.assertNull(price);
 	}
 
 	@Then("^price should be (\\d+)$")
-	public void selling_price_should_be(long price) throws Throwable {
+	public void selling_price_should_be(Long price) throws Throwable {
 		Assert.assertEquals(price, this.price);
 	}
 
