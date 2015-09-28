@@ -35,8 +35,9 @@ Given item is not craftable
  
 Scenario: Analysing non craftable and not found item
 Given there is nothing to sell
-Given item is craftable
+Given item is not craftable
  When I want to analyse the price of this item
+ Then analysis should return no buy price
  Then analysis should return no crafting price
  Then analysis should return no crafting recipe
   
@@ -54,5 +55,15 @@ Given item is craftable
  When I want to analyse the price of this item
  Then analysis should return 100 as buy price
  Then analysis should return no crafting price
+ Then analysis should return a crafting recipe
+
+Scenario: Building craftable price
+Given there is an offer for 1 of this item at 100
+Given item is craftable
+Given recipe for item means take 5 units of reagent to get 1 item
+Given there is an offer for 5 of this reagent at 50
+ When I want to analyse the price of this item
+ Then analysis should return 100 as buy price
+ Then analysis should return 50 as crafting price
  Then analysis should return a crafting recipe
  
