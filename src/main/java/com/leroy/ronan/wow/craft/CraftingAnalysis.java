@@ -54,6 +54,5 @@ public class CraftingAnalysis {
         }
         return res;
     }
-
     
 }
