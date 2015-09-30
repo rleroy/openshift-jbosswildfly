@@ -60,11 +60,12 @@ public class AuctionAnalyser {
 		
 		Long buyPrice = getBuyPrice(id, 1);
 		Recipe recipe = null;
+		res = new CraftingAnalysis(buyPrice, recipe);
+		
 		if (item.getCreatedBy().size() > 0){
 			for (WowHeadSpell s : item.getCreatedBy()) {
 				Long reagentsBuyPrice = 0l;
 				for (WowHeadReagent r : s.getReagents()) {
-					WowHeadItem curItem = wowhead.apply(r.getId());
 					Long curPrice = getBuyPrice(r.getId(), r.getCount());
 					if (curPrice != null) {
 						reagentsBuyPrice += curPrice;
@@ -72,11 +73,18 @@ public class AuctionAnalyser {
 				}
 				reagentsBuyPrice = reagentsBuyPrice *2 / (s.getMaxCount()+s.getMinCount());
 				if (reagentsBuyPrice < buyPrice) {
-					// TODO : Merge reagents crafting analysis.
+				    CraftingAnalysis spellCA = CraftingAnalysis.EMPTY;
+	                for (WowHeadReagent r : s.getReagents()) {
+	                    CraftingAnalysis reagentCA = getCraftingAnalysis(r.getId());
+	                    reagentCA = reagentCA.multiply(r.getCount());
+	                    spellCA = spellCA.add(reagentCA);
+	                }
+                    spellCA = spellCA.multiply(2);
+                    spellCA.divide(s.getMaxCount()+s.getMinCount());
+                    res = res.best(spellCA);
 				}
 			}
 		}
-		res = new CraftingAnalysis(buyPrice, recipe);
 		return res;
 	}
 	

@@ -2,7 +2,9 @@ package com.leroy.ronan.wow.craft;
 
 public class CraftingAnalysis {
 
-	private Long buyprice;
+	public static final CraftingAnalysis EMPTY = new CraftingAnalysis(null, null);
+	
+    private Long buyprice;
 	private Recipe recipe;
 
 	public CraftingAnalysis(Long price, Recipe recipe) {
@@ -26,5 +28,31 @@ public class CraftingAnalysis {
 		}
 		return res;
 	}
+
+    public CraftingAnalysis multiply(int coeff) {
+        return new CraftingAnalysis(this.buyprice*coeff, recipe);
+    }
+
+    public CraftingAnalysis add(CraftingAnalysis that) {
+        return new CraftingAnalysis(this.buyprice+that.buyprice, recipe);
+    }
+
+    public CraftingAnalysis divide(int coeff) {
+        return new CraftingAnalysis(this.buyprice/coeff, recipe);
+    }
+
+    public CraftingAnalysis best(CraftingAnalysis that) {
+        CraftingAnalysis res;
+        if (that.buyprice == null){
+            res = this;
+        } else if (this.buyprice == null){
+            res = that;
+        } else if (this.buyprice < that.buyprice) {
+            res = this;
+        } else {
+            res = that;
+        }
+        return res;
+    }
 
 }
